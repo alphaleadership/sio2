@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Explorateur de fichiers</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        .file-list { list-style: none; padding: 0; }
+        .file-item { padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; }
+        .file-icon { margin-right: 10px; }
+        .folder { font-weight: bold; color: #2a5d9f; cursor: pointer; }
+        .file { color: #444; }
+    </style>
+</head>
+<body>
+    <h1>Explorateur de fichiers</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+  <input type="file" name="file" webkitdirectory directory multiple required>
+  <input type="hidden" name="path" value="<%= path || '' %>">
+  <button type="submit">Uploader dossier</button>
+</form>
+    <ul class="file-list">
+        <% if (files && files.length) { %>
+            <% files.forEach(function(file) { %>
+                <li class="file-item">
+                    <% if (file.isDirectory) { %>
+    <span class="file-icon">📁</span>
+    <span class="folder">
+        <a href="?path=<%= encodeURIComponent(file.relativePath) %>"><%= file.name %></a>
+    </span>
+<% } else { %>
+    <span class="file-icon">📄</span>
+    <span class="file">
+        <a href="/download?file=<%= encodeURIComponent(file.relativePath) %>" download><%= file.name %></a>
+    </span>
+<% } %>
+                </li>
+            <% }); %>
+        <% } else { %>
+            <li>Aucun fichier ou dossier trouvé.</li>
+        <% } %>
+    </ul>
+</body>
+</html>

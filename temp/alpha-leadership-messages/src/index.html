@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alpha Leadership Messages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
+        .container { max-width: 700px; margin: 40px auto; background: #fff; padding: 24px 32px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07);}
+        h1 { color: #2c3e50; }
+        .message-list { list-style: none; padding: 0; }
+        .message { border-bottom: 1px solid #eee; padding: 16px 0; }
+        .message:last-child { border-bottom: none; }
+        .timestamp { color: #888; font-size: 0.95em; }
+        .controls { margin-bottom: 20px; }
+        select, button { margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Alpha Leadership Messages</h1>
+        <div class="controls">
+            <select id="server">
+                <option value="server1">Serveur 1</option>
+                <option value="server2">Serveur 2</option>
+                <!-- Ajoute ici d'autres serveurs -->
+            </select>
+            <select id="channel">
+                <option value="general">Général</option>
+                <option value="annonces">Annonces</option>
+                <!-- Ajoute ici d'autres salons -->
+            </select>
+            <input type="date" id="date" value="">
+            <button onclick="fetchMessages()">Voir</button>
+        </div>
+        <ul class="message-list" id="messages"></ul>
+    </div>
+    <script>
+        // Met la date du jour par défaut
+        document.getElementById('date').value = new Date().toISOString().slice(0,10);
+
+        async function fetchMessages() {
+            const serverId = document.getElementById('server').value;
+            const channelId = document.getElementById('channel').value;
+            const date = document.getElementById('date').value;
+            const url = `https://alphaleadership.github.io/${serverId}/${channelId}/${date}.json`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch messages');
+                const messages = await response.json();
+                const list = document.getElementById('messages');
+                list.innerHTML = '';
+                messages.forEach(msg => {
+                    const li = document.createElement('li');
+                    li.className = 'message';
+                    li.innerHTML = `
+                        <div>${msg.text}</div>
+                        <div class="timestamp">${new Date(msg.timestamp).toLocaleString()}</div>
+                    `;
+                    list.appendChild(li);
+                });
+            } catch (err) {
+                document.getElementById('messages').innerHTML = '<li>Unable to load messages.</li>';
+            }
+        }
+        // Chargement initial
+        fetchMessages();
+    </script>
+</body>
+</html>

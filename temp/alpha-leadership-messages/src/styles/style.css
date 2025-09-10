@@ -1,0 +1,51 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 24px 32px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #2c3e50;
+    text-align: center;
+}
+
+.server {
+    margin-top: 20px;
+    border-top: 2px solid #2c3e50;
+    padding-top: 10px;
+}
+
+.channel {
+    margin-left: 20px;
+    border-left: 2px solid #3498db;
+    padding-left: 10px;
+}
+
+.message-list {
+    list-style: none;
+    padding: 0;
+}
+
+.message {
+    border-bottom: 1px solid #eee;
+    padding: 16px 0;
+}
+
+.message:last-child {
+    border-bottom: none;
+}
+
+.timestamp {
+    color: #888;
+    font-size: 0.95em;
+}
