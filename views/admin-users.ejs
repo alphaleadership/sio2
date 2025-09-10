@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion des comptes admin</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <h1>Gestion des comptes admin</h1>
+  <a href="/admin/trash">Retour à la corbeille</a>
+  <h2>Comptes existants</h2>
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr><th>Nom d'utilisateur</th><th>Action</th></tr>
+    </thead>
+    <tbody id="adminList">
+    </tbody>
+  </table>
+  <h2>Ajouter un compte</h2>
+  <form id="addForm">
+    <label>Nom d'utilisateur : <input type="text" id="newUser" required></label>
+    <label>Mot de passe : <input type="text" id="newPass" required></label>
+    <button type="submit">Ajouter</button>
+  </form>
+  <script>
+    // Récupère la liste des admins
+    function refreshAdmins() {
+      fetch('/admin/users', { headers: authHeader() })
+        .then(r => r.json())
+        .then(list => {
+          const tbody = document.getElementById('adminList');
+          tbody.innerHTML = '';
+          list.forEach(u => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${u.username}</td><td><button onclick="deleteUser('${u.username}')">Supprimer</button></td>`;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+    function deleteUser(username) {
+      if (!confirm('Supprimer ce compte ?')) return;
+      fetch('/admin/users', {
+        method: 'DELETE',
+        headers: Object.assign({'Content-Type': 'application/json'}, authHeader()),
+        body: JSON.stringify({ username })
+      }).then(refreshAdmins);
+    }
+    document.getElementById('addForm').onsubmit = function(e) {
+      e.preventDefault();
+      fetch('/admin/users', {
+        method: 'POST',
+        headers: Object.assign({'Content-Type': 'application/json'}, authHeader()),
+        body: JSON.stringify({
+          username: document.getElementById('newUser').value,
+          password: document.getElementById('newPass').value
+        })
+      }).then(() => {
+        document.getElementById('addForm').reset();
+        refreshAdmins();
+      });
+    };
+    // Authentification Basic pour les requêtes admin
+    function authHeader() {
+      const user = localStorage.getItem('adminUser') || 'admin';
+      const pass = localStorage.getItem('adminPass') || 'admin123';
+      return { 'Authorization': 'Basic ' + btoa(user + ':' + pass) };
+    }
+    // Demande login admin si pas déjà stocké
+    if (!localStorage.getItem('adminUser') || !localStorage.getItem('adminPass')) {
+      const u = prompt('Nom admin ?','admin');
+      const p = prompt('Mot de passe ?','admin123');
+      localStorage.setItem('adminUser', u);
+      localStorage.setItem('adminPass', p);
+    }
+    refreshAdmins();
+  </script>
+</body>
+</html>

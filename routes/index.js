@@ -1,3 +1,32 @@
+// --- Gestion des comptes admin (API REST simple) ---
+router.get('/admin/users', adminAuth, (req, res) => {
+  loadAdminUsers();
+  res.json(adminUsers.map(u => ({ username: u.username })));
+});
+
+router.post('/admin/users', adminAuth, (req, res) => {
+  loadAdminUsers();
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Champs manquants' });
+  if (adminUsers.some(u => u.username === username)) return res.status(409).json({ error: 'Déjà existant' });
+  adminUsers.push({ username, password });
+  fs.writeFileSync(adminUsersPath, JSON.stringify(adminUsers, null, 2));
+  res.json({ ok: true });
+});
+
+router.delete('/admin/users', adminAuth, (req, res) => {
+  loadAdminUsers();
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ error: 'Nom manquant' });
+  adminUsers = adminUsers.filter(u => u.username !== username);
+  fs.writeFileSync(adminUsersPath, JSON.stringify(adminUsers, null, 2));
+  res.json({ ok: true });
+});
+
+// Vue gestion comptes admin
+router.get('/admin/users/manage', adminAuth, (req, res) => {
+  res.render('admin-users');
+});
 // Dossier corbeille (non visible)
 
 var express = require('express');
@@ -90,20 +119,28 @@ if (!fs.existsSync(trashDir)) {
 }
 
 // --- Authentification admin basique ---
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'admin123'; // À changer en prod !
+const adminUsersPath = path.resolve(__dirname, '../admin-users.json');
+let adminUsers = [];
+function loadAdminUsers() {
+  try {
+    adminUsers = JSON.parse(fs.readFileSync(adminUsersPath, 'utf8'));
+  } catch (e) {
+    adminUsers = [];
+  }
+}
+loadAdminUsers();
 
 function adminAuth(req, res, next) {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith('Basic ')) {
-    // Si requête navigateur, redirige vers /admin/login
     if (req.accepts('html')) return res.redirect('/admin/login');
     res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
     return res.status(401).send('Authentification requise');
   }
   const b64 = auth.split(' ')[1];
   const [user, pass] = Buffer.from(b64, 'base64').toString().split(':');
-  if (user === ADMIN_USER && pass === ADMIN_PASS) return next();
+  // Vérifie dans la liste des admins
+  if (adminUsers.some(u => u.username === user && u.password === pass)) return next();
   if (req.accepts('html')) return res.redirect('/admin/login');
   res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
   return res.status(401).send('Accès refusé');
