@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion Admin</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <h1>Connexion Admin</h1>
+  <form id="loginForm">
+    <label>Nom d'utilisateur : <input type="text" id="username" value="admin"></label><br>
+    <label>Mot de passe : <input type="password" id="password" value="admin123"></label><br>
+    <button type="submit">Se connecter</button>
+  </form>
+  <script>
+    document.getElementById('loginForm').onsubmit = function(e) {
+      e.preventDefault();
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      const b64 = btoa(user + ':' + pass);
+      // Redirige vers /admin/trash avec auth basique
+      fetch('/admin/trash', {
+        headers: { 'Authorization': 'Basic ' + b64 }
+      }).then(resp => {
+        if (resp.status === 401) {
+          alert('Identifiants invalides');
+        } else if (resp.redirected) {
+          window.location = resp.url;
+        } else {
+          resp.text().then(html => {
+            document.open(); document.write(html); document.close();
+          });
+        }
+      });
+    };
+  </script>
+</body>
+</html>

@@ -83,10 +83,72 @@ router.get('/', function(req, res, next) {
 
   res.render('index', { title: 'Explorateur de fichiers', files: files,path: reqPath.replace(baseDir, "").replace(/\\/g, '/')  });
 });
-const trashDir = path.join(baseDir, '..\\..\\.corbeille');
+
+const trashDir = path.join(baseDir, '..', '..', '.corbeille');
 if (!fs.existsSync(trashDir)) {
   fs.mkdirSync(trashDir, { recursive: true });
 }
+
+// --- Authentification admin basique ---
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'admin123'; // À changer en prod !
+
+function adminAuth(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Basic ')) {
+    // Si requête navigateur, redirige vers /admin/login
+    if (req.accepts('html')) return res.redirect('/admin/login');
+    res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
+    return res.status(401).send('Authentification requise');
+  }
+  const b64 = auth.split(' ')[1];
+  const [user, pass] = Buffer.from(b64, 'base64').toString().split(':');
+  if (user === ADMIN_USER && pass === ADMIN_PASS) return next();
+  if (req.accepts('html')) return res.redirect('/admin/login');
+  res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
+  return res.status(401).send('Accès refusé');
+}
+
+// Vue de login admin
+router.get('/admin/login', function(req, res) {
+  res.render('login');
+});
+// --- Route admin : liste des fichiers dans la corbeille ---
+router.get('/admin/trash', adminAuth, function(req, res) {
+  try {
+    const files = fs.readdirSync(trashDir)
+      .filter(f => fs.statSync(path.join(trashDir, f)).isFile())
+      .map(f => ({
+        name: f,
+        mtime: fs.statSync(path.join(trashDir, f)).mtime,
+        size: fs.statSync(path.join(trashDir, f)).size
+      }));
+    res.render('trash', { title: 'Corbeille', files });
+  } catch (e) {
+    res.status(500).send('Erreur lecture corbeille');
+  }
+});
+
+// --- Route admin : restauration d'un fichier de la corbeille ---
+router.post('/admin/restore', adminAuth, function(req, res) {
+  const trashFile = req.body.file;
+  if (!trashFile) return res.status(400).send('Fichier non spécifié.');
+  const absTrashFile = path.join(trashDir, trashFile);
+  if (!absTrashFile.startsWith(trashDir) || !fs.existsSync(absTrashFile)) {
+    return res.status(404).send('Fichier non trouvé dans la corbeille.');
+  }
+  // Retrouver le nom original (après le timestamp)
+  const origName = trashFile.replace(/^\d+_/, '');
+  const destPath = path.join(baseDir, origName);
+  // Créer dossier si besoin
+  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  try {
+    fs.renameSync(absTrashFile, destPath);
+    res.redirect('/admin/trash');
+  } catch (e) {
+    res.status(500).send('Erreur restauration.');
+  }
+});
 
 // Route pour supprimer (déplacer) un fichier dans la corbeille
 router.post('/delete', function(req, res, next) {

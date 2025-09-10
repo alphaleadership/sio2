@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Corbeille - Admin</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <h1>Corbeille</h1>
+  <a href="/">Retour à l'explorateur</a>
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Taille</th>
+        <th>Date suppression</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (files.length === 0) { %>
+        <tr><td colspan="4">Aucun fichier dans la corbeille.</td></tr>
+      <% } %>
+      <% files.forEach(function(file) { %>
+        <tr>
+          <td><%= file.name.replace(/^\d+_/, '') %></td>
+          <td><%= (file.size/1024).toFixed(1) %> Ko</td>
+          <td><%= file.mtime.toLocaleString() %></td>
+          <td>
+            <form method="post" action="/admin/restore" style="display:inline">
+              <input type="hidden" name="file" value="<%= file.name %>">
+              <button type="submit">Restaurer</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</body>
+</html>
