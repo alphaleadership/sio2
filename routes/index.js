@@ -1,32 +1,4 @@
-// --- Gestion des comptes admin (API REST simple) ---
-router.get('/admin/users', adminAuth, (req, res) => {
-  loadAdminUsers();
-  res.json(adminUsers.map(u => ({ username: u.username })));
-});
 
-router.post('/admin/users', adminAuth, (req, res) => {
-  loadAdminUsers();
-  const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ error: 'Champs manquants' });
-  if (adminUsers.some(u => u.username === username)) return res.status(409).json({ error: 'Déjà existant' });
-  adminUsers.push({ username, password });
-  fs.writeFileSync(adminUsersPath, JSON.stringify(adminUsers, null, 2));
-  res.json({ ok: true });
-});
-
-router.delete('/admin/users', adminAuth, (req, res) => {
-  loadAdminUsers();
-  const { username } = req.body;
-  if (!username) return res.status(400).json({ error: 'Nom manquant' });
-  adminUsers = adminUsers.filter(u => u.username !== username);
-  fs.writeFileSync(adminUsersPath, JSON.stringify(adminUsers, null, 2));
-  res.json({ ok: true });
-});
-
-// Vue gestion comptes admin
-router.get('/admin/users/manage', adminAuth, (req, res) => {
-  res.render('admin-users');
-});
 // Dossier corbeille (non visible)
 
 var express = require('express');
@@ -223,5 +195,33 @@ console.log(reqFile);
     res.download(reqFile, path.basename(reqFile));
   });
 });
+// --- Gestion des comptes admin (API REST simple) ---
+router.get('/admin/users', adminAuth, (req, res) => {
+  loadAdminUsers();
+  res.json(adminUsers.map(u => ({ username: u.username })));
+});
 
+router.post('/admin/users', adminAuth, (req, res) => {
+  loadAdminUsers();
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Champs manquants' });
+  if (adminUsers.some(u => u.username === username)) return res.status(409).json({ error: 'Déjà existant' });
+  adminUsers.push({ username, password });
+  fs.writeFileSync(adminUsersPath, JSON.stringify(adminUsers, null, 2));
+  res.json({ ok: true });
+});
+
+router.delete('/admin/users', adminAuth, (req, res) => {
+  loadAdminUsers();
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ error: 'Nom manquant' });
+  adminUsers = adminUsers.filter(u => u.username !== username);
+  fs.writeFileSync(adminUsersPath, JSON.stringify(adminUsers, null, 2));
+  res.json({ ok: true });
+});
+
+// Vue gestion comptes admin
+router.get('/admin/users/manage', adminAuth, (req, res) => {
+  res.render('admin-users');
+});
 module.exports = router;
