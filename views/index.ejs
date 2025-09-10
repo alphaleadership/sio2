@@ -19,6 +19,20 @@
   <input type="hidden" name="path" value="<%= path || '' %>">
   <button type="submit">Uploader dossier</button>
 </form>
+    <% 
+    // Calcul du chemin du dossier parent
+    let parentPath = null;
+    if (path && path !== '' && path !== '/') {
+        let parts = path.split('/').filter(Boolean);
+        parts.pop();
+        parentPath = parts.length ? ('/' + parts.join('/')) : '';
+    }
+    %>
+    <% if (parentPath !== null) { %>
+        <div style="margin-bottom: 10px;">
+            <a href="?path=<%= encodeURIComponent(parentPath) %>">⬅️ Dossier précédent</a>
+        </div>
+    <% } %>
     <ul class="file-list">
         <% if (files && files.length) { %>
             <% files.forEach(function(file) { %>
@@ -33,6 +47,12 @@
     <span class="file">
         <a href="/download?file=<%= encodeURIComponent(file.relativePath) %>" download><%= file.name %></a>
     </span>
+    <form action="/delete" method="post" style="display:inline" onsubmit="return confirm('Supprimer ce fichier ?');">
+        <input type="hidden" name="file" value="<%= file.relativePath %>">
+        <button type="submit" style="background:none;border:none;color:#c00;cursor:pointer;" title="Supprimer">
+            🗑️
+        </button>
+    </form>
 <% } %>
                 </li>
             <% }); %>

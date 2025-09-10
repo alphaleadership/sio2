@@ -1,3 +1,5 @@
+// Dossier corbeille (non visible)
+
 var express = require('express');
 var router = express.Router();
 const path = require("path");
@@ -81,7 +83,28 @@ router.get('/', function(req, res, next) {
 
   res.render('index', { title: 'Explorateur de fichiers', files: files,path: reqPath.replace(baseDir, "").replace(/\\/g, '/')  });
 });
+const trashDir = path.join(baseDir, '..\\..\\.corbeille');
+if (!fs.existsSync(trashDir)) {
+  fs.mkdirSync(trashDir, { recursive: true });
+}
 
+// Route pour supprimer (déplacer) un fichier dans la corbeille
+router.post('/delete', function(req, res, next) {
+  const relFile = req.body.file;
+  if (!relFile) return res.status(400).send('Fichier non spécifié.');
+  const absFile = path.join(baseDir, relFile);
+  if (!absFile.startsWith(baseDir)) return res.status(400).send('Chemin invalide.');
+  if (!fs.existsSync(absFile)) return res.status(404).send('Fichier non trouvé.');
+  // Empêcher suppression de la corbeille elle-même
+  if (absFile.startsWith(trashDir)) return res.status(400).send('Action interdite.');
+  // Générer un nom unique dans la corbeille
+  const fileName = path.basename(absFile);
+  const trashPath = path.join(trashDir, Date.now() + '_' + fileName);
+  fs.rename(absFile, trashPath, (err) => {
+    if (err) return res.status(500).send('Erreur lors du déplacement.');
+    res.redirect(req.get('referer') || '/');
+  });
+});
 // Route de téléchargement de fichier
 router.get('/download', function(req, res, next) {
 

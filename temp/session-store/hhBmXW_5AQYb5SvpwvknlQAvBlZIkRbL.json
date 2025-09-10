@@ -1,15 +1,1 @@
-{
-    "cookie": {
-        "originalMaxAge": null,
-        "expires": null,
-        "secure": false,
-        "httpOnly": true,
-        "path": "/"
-    },
-    "__lastAccess": 1757512310269,
-    "urlsVisited": [
-        "/",
-        "/?path=logs",
-        "/?path=logs%5Cfallback_access.log.1"
-    ]
-}
+{"cookie":{"originalMaxAge":null,"expires":null,"secure":false,"httpOnly":true,"path":"/"},"__lastAccess":1757512712955,"urlsVisited":["/","/?path=logs","/?path=logs%5Cfallback_access.log.1","/?path=logs%5Cfallback_access.log.1","/?path=%2Flogs","/?path=","/?path=","/?path=","/delete","/?path="]}
