@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
   const baseDir = path.resolve("./public/partage");
   const multer = require('multer');
-const upload = multer({ dest: path.join(baseDir, 'tmp_uploads') }); // dossier temporaire pour upload
+const upload = multer({ dest: path.join(baseDir, '..','tmp_uploads') }); // dossier temporaire pour upload
  // dossier temporaire pour upload
 router.post('/upload', upload.array('file'), function(req, res, next) {
   if (!req.files || req.files.length === 0) {
