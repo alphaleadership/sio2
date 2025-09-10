@@ -103,6 +103,8 @@ function loadAdminUsers() {
 loadAdminUsers();
 
 function adminAuth(req, res, next) {
+  // Si déjà authentifié en session
+  if (req.session && req.session.adminUser) return next();
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith('Basic ')) {
     if (req.accepts('html')) return res.redirect('/admin/login');
@@ -112,7 +114,10 @@ function adminAuth(req, res, next) {
   const b64 = auth.split(' ')[1];
   const [user, pass] = Buffer.from(b64, 'base64').toString().split(':');
   // Vérifie dans la liste des admins
-  if (adminUsers.some(u => u.username === user && u.password === pass)) return next();
+  if (adminUsers.some(u => u.username === user && u.password === pass)) {
+    if (req.session) req.session.adminUser = user;
+    return next();
+  }
   if (req.accepts('html')) return res.redirect('/admin/login');
   res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
   return res.status(401).send('Accès refusé');
