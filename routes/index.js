@@ -42,26 +42,55 @@ router.post('/upload', upload.array('file'), function(req, res, next) {
   }
 });
 /* GET home page. */
+
+// Dossier global partagé
+const globalShareDir = path.join(baseDir, 'global');
+if (!fs.existsSync(globalShareDir)) fs.mkdirSync(globalShareDir, { recursive: true });
+
 router.get('/', userAuth(), function(req, res, next) {
-  // Si utilisateur non admin, restreint à son dossier perso
+  let rootChoices = [];
   let userDir = baseDir;
   let relBase = '';
+  let isRoot = false;
   if (req.session.user && req.session.user.role === 'user') {
-    userDir = path.join(baseDir, 'users', req.session.user.username);
-    relBase = '/users/' + req.session.user.username;
-    // Empêche d'accéder à d'autres partages
-    if (req.query.path && req.query.path !== '' && req.query.path !== '/') {
-      const requested = path.normalize(req.query.path).replace(/^\\+|\/+/, '');
-      if (requested.split(/[\\\/]/)[0] !== req.session.user.username) {
-        return res.status(403).send('Accès interdit à ce dossier.');
-      }
+    // Racine : choix entre "Mon dossier" et "Partage global"
+    if (!req.query.path || req.query.path === '' || req.query.path === '/') {
+      isRoot = true;
+      rootChoices = [
+        { name: 'Mon dossier', path: '/users/' + req.session.user.username },
+        { name: 'Partage global', path: '/global' }
+      ];
     }
+    // Navigation dans le dossier perso
+    if (req.query.path && req.query.path.startsWith('/users/' + req.session.user.username)) {
+      userDir = path.join(baseDir, 'users', req.session.user.username);
+      relBase = '/users/' + req.session.user.username;
+      const subPath = req.query.path.replace(relBase, '').replace(/^\/+/, '');
+      const reqPath = subPath ? path.join(userDir, subPath) : userDir;
+      if (!reqPath.startsWith(userDir)) return res.status(400).send('Chemin invalide.');
+      return renderFiles(req, res, reqPath, userDir, relBase);
+    }
+    // Navigation dans le partage global
+    if (req.query.path && req.query.path.startsWith('/global')) {
+      const subPath = req.query.path.replace('/global', '').replace(/^\/+/, '');
+      const reqPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
+      if (!reqPath.startsWith(globalShareDir)) return res.status(400).send('Chemin invalide.');
+      return renderFiles(req, res, reqPath, globalShareDir, '/global');
+    }
+    // Sinon, affiche le choix racine
+    if (isRoot) {
+      return res.render('index', { title: 'Explorateur de fichiers', files: [], path: '/', user: req.session.user, rootChoices });
+    }
+    // Empêche d'accéder à d'autres partages
+    return res.status(403).send('Accès interdit à ce dossier.');
   }
-  const reqPath = req.query.path ? path.join(userDir, req.query.path) : userDir;
-  // Prevent path traversal
-  if (!reqPath.startsWith(userDir)) {
-    return res.status(400).send("Chemin invalide.");
-  }
+  // Admin : accès complet
+  const reqPath = req.query.path ? path.join(baseDir, req.query.path) : baseDir;
+  if (!reqPath.startsWith(baseDir)) return res.status(400).send('Chemin invalide.');
+  renderFiles(req, res, reqPath, baseDir, '');
+});
+
+function renderFiles(req, res, reqPath, userDir, relBase) {
   function getFilesInDir(dirPath, relPath = "") {
     const files = fs.readdirSync(dirPath, { withFileTypes: true });
     return files.map((file) => {
@@ -90,7 +119,7 @@ router.get('/', userAuth(), function(req, res, next) {
     return res.status(500).send("Erreur lors de la lecture du dossier.");
   }
   res.render('index', { title: 'Explorateur de fichiers', files: files, path: reqPath.replace(userDir, relBase).replace(/\\/g, '/'), user: req.session.user });
-});
+}
 
 const trashDir = path.join(baseDir, '..', '..', '.corbeille');
 if (!fs.existsSync(trashDir)) {

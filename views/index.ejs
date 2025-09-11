@@ -41,32 +41,45 @@
             <a href="?path=<%= encodeURIComponent(parentPath) %>">⬅️ Dossier précédent</a>
         </div>
     <% } %>
-    <ul class="file-list">
-        <% if (files && files.length) { %>
-            <% files.forEach(function(file) { %>
-                <li class="file-item">
-                    <% if (file.isDirectory) { %>
-    <span class="file-icon">📁</span>
-    <span class="folder">
-        <a href="?path=<%= encodeURIComponent(file.relativePath) %>"><%= file.name %></a>
-    </span>
-<% } else { %>
-    <span class="file-icon">📄</span>
-    <span class="file">
-        <a href="/download?file=<%= encodeURIComponent(file.relativePath) %>" download><%= file.name %></a>
-    </span>
-    <form action="/delete" method="post" style="display:inline" onsubmit="return confirm('Supprimer ce fichier ?');">
-        <input type="hidden" name="file" value="<%= file.relativePath %>">
-        <button type="submit" style="background:none;border:none;color:#c00;cursor:pointer;" title="Supprimer">
-            🗑️
-        </button>
-    </form>
-<% } %>
-                </li>
-            <% }); %>
+        <% if (typeof rootChoices !== 'undefined' && rootChoices && rootChoices.length) { %>
+            <ul class="file-list">
+                <% rootChoices.forEach(function(choice) { %>
+                    <li class="file-item">
+                        <span class="file-icon">📁</span>
+                        <span class="folder">
+                            <a href="?path=<%= encodeURIComponent(choice.path) %>"><%= choice.name %></a>
+                        </span>
+                    </li>
+                <% }); %>
+            </ul>
         <% } else { %>
-            <li>Aucun fichier ou dossier trouvé.</li>
+            <ul class="file-list">
+                <% if (files && files.length) { %>
+                        <% files.forEach(function(file) { %>
+                                <li class="file-item">
+                                        <% if (file.isDirectory) { %>
+        <span class="file-icon">📁</span>
+        <span class="folder">
+                <a href="?path=<%= encodeURIComponent(file.relativePath) %>"><%= file.name %></a>
+        </span>
+<% } else { %>
+        <span class="file-icon">📄</span>
+        <span class="file">
+                <a href="/download?file=<%= encodeURIComponent(file.relativePath) %>" download><%= file.name %></a>
+        </span>
+        <form action="/delete" method="post" style="display:inline" onsubmit="return confirm('Supprimer ce fichier ?');">
+                <input type="hidden" name="file" value="<%= file.relativePath %>">
+                <button type="submit" style="background:none;border:none;color:#c00;cursor:pointer;" title="Supprimer">
+                        🗑️
+                </button>
+        </form>
+<% } %>
+                                </li>
+                        <% }); %>
+                <% } else { %>
+                        <li>Aucun fichier ou dossier trouvé.</li>
+                <% } %>
+            </ul>
         <% } %>
-    </ul>
 </body>
 </html>
