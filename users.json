@@ -3,15 +3,5 @@
     "username": "admin",
     "password": "admin123",
     "role": "admin"
-  },
-  {
-    "username": "user1",
-    "password": "user1pass",
-    "role": "user"
-  },
-  {
-    "username": "user2",
-    "password": "user2pass",
-    "role": "user"
   }
 ]
