@@ -5,7 +5,7 @@ var express = require('express');
 var router = express.Router();
 const path = require("path");
 const fs = require("fs");
-  const baseDir = path.resolve("./public/partage");
+  const baseDir = path.resolve("../partage");
   const multer = require('multer');
 const upload = multer({ dest: path.join(baseDir, '..','tmp_uploads') }); // dossier temporaire pour upload
  // dossier temporaire pour upload
