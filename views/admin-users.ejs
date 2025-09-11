@@ -20,6 +20,12 @@
   <form id="addForm">
     <label>Nom d'utilisateur : <input type="text" id="newUser" required></label>
     <label>Mot de passe : <input type="text" id="newPass" required></label>
+    <label>Rôle :
+      <select id="newRole" required>
+        <option value="user">Utilisateur</option>
+        <option value="admin">Admin</option>
+      </select>
+    </label>
     <button type="submit">Ajouter</button>
   </form>
   <script>
@@ -52,7 +58,8 @@
         headers: Object.assign({'Content-Type': 'application/json'}, authHeader()),
         body: JSON.stringify({
           username: document.getElementById('newUser').value,
-          password: document.getElementById('newPass').value
+          password: document.getElementById('newPass').value,
+          role: document.getElementById('newRole').value
         })
       }).then(() => {
         document.getElementById('addForm').reset();
