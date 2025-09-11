@@ -42,16 +42,26 @@ router.post('/upload', upload.array('file'), function(req, res, next) {
   }
 });
 /* GET home page. */
-router.get('/', function(req, res, next) {
-    // Get the requested path from query, default to root folder
-
-  const reqPath = req.query.path ? path.join(baseDir, req.query.path) : baseDir;
-
+router.get('/', userAuth(), function(req, res, next) {
+  // Si utilisateur non admin, restreint à son dossier perso
+  let userDir = baseDir;
+  let relBase = '';
+  if (req.session.user && req.session.user.role === 'user') {
+    userDir = path.join(baseDir, 'users', req.session.user.username);
+    relBase = '/users/' + req.session.user.username;
+    // Empêche d'accéder à d'autres partages
+    if (req.query.path && req.query.path !== '' && req.query.path !== '/') {
+      const requested = path.normalize(req.query.path).replace(/^\\+|\/+/, '');
+      if (requested.split(/[\\\/]/)[0] !== req.session.user.username) {
+        return res.status(403).send('Accès interdit à ce dossier.');
+      }
+    }
+  }
+  const reqPath = req.query.path ? path.join(userDir, req.query.path) : userDir;
   // Prevent path traversal
-  if (!reqPath.startsWith(baseDir)) {
+  if (!reqPath.startsWith(userDir)) {
     return res.status(400).send("Chemin invalide.");
   }
-
   function getFilesInDir(dirPath, relPath = "") {
     const files = fs.readdirSync(dirPath, { withFileTypes: true });
     return files.map((file) => {
@@ -59,7 +69,7 @@ router.get('/', function(req, res, next) {
       const stats = fs.statSync(fullPath);
       const relativePath = path.join(relPath, file.name);
       return {
-        name: relativePath.replace(/\\/g, '/'), // name relatif au dossier de partage
+        name: relativePath.replace(/\\/g, '/'),
         fullPath: fullPath,
         relativePath: relativePath,
         isDirectory: file.isDirectory(),
@@ -72,17 +82,14 @@ router.get('/', function(req, res, next) {
       };
     });
   }
-
   let files = [];
   try {
-    // Compute relative path from baseDir for correct navigation
-    const relPath = path.relative(baseDir, reqPath);
+    const relPath = path.relative(userDir, reqPath);
     files = getFilesInDir(reqPath, relPath === "" ? "" : relPath);
   } catch (err) {
     return res.status(500).send("Erreur lors de la lecture du dossier.");
   }
-
-  res.render('index', { title: 'Explorateur de fichiers', files: files,path: reqPath.replace(baseDir, "").replace(/\\/g, '/')  });
+  res.render('index', { title: 'Explorateur de fichiers', files: files, path: reqPath.replace(userDir, relBase).replace(/\\/g, '/'), user: req.session.user });
 });
 
 const trashDir = path.join(baseDir, '..', '..', '.corbeille');
@@ -90,41 +97,53 @@ if (!fs.existsSync(trashDir)) {
   fs.mkdirSync(trashDir, { recursive: true });
 }
 
-// --- Authentification admin basique ---
-const adminUsersPath = path.resolve(__dirname, '../admin-users.json');
-let adminUsers = [];
-function loadAdminUsers() {
+// --- Authentification utilisateurs (admin et non-admin) ---
+const usersPath = path.resolve(__dirname, '../users.json');
+let users = [];
+function loadUsers() {
   try {
-    adminUsers = JSON.parse(fs.readFileSync(adminUsersPath, 'utf8'));
+    users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
   } catch (e) {
-    adminUsers = [];
+    users = [];
   }
 }
-loadAdminUsers();
+loadUsers();
 
-function adminAuth(req, res, next) {
-  // Si déjà authentifié en session
-  if (req.session && req.session.adminUser) return next();
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith('Basic ')) {
-    if (req.accepts('html')) return res.redirect('/admin/login');
-    res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
-    return res.status(401).send('Authentification requise');
+function userAuth(role = null) {
+  return function(req, res, next) {
+    if (req.session && req.session.user) {
+      if (!role || req.session.user.role === role) return next();
+      return res.status(403).send('Accès interdit.');
+    }
+    const auth = req.headers.authorization;
+    if (!auth || !auth.startsWith('Basic ')) {
+      if (req.accepts('html')) return res.redirect('/login');
+      res.set('WWW-Authenticate', 'Basic realm="User Area"');
+      return res.status(401).send('Authentification requise');
+    }
+    const b64 = auth.split(' ')[1];
+    const [username, password] = Buffer.from(b64, 'base64').toString().split(':');
+    const user = users.find(u => u.username === username && u.password === password);
+    if (user && (!role || user.role === role)) {
+      if (req.session) req.session.user = { username: user.username, role: user.role };
+      // Crée le dossier perso si non existant
+      if (user.role === 'user') {
+        const userDir = path.join(baseDir, 'users', user.username);
+        if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
+      }
+      return next();
+    }
+    if (req.accepts('html')) return res.redirect('/login');
+    res.set('WWW-Authenticate', 'Basic realm="User Area"');
+    return res.status(401).send('Accès refusé');
   }
-  const b64 = auth.split(' ')[1];
-  const [user, pass] = Buffer.from(b64, 'base64').toString().split(':');
-  // Vérifie dans la liste des admins
-  if (adminUsers.some(u => u.username === user && u.password === pass)) {
-    if (req.session) req.session.adminUser = user;
-    return next();
-  }
-  if (req.accepts('html')) return res.redirect('/admin/login');
-  res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
-  return res.status(401).send('Accès refusé');
 }
 
-// Vue de login admin
-router.get('/admin/login', function(req, res) {
+// Pour compatibilité, alias adminAuth
+const adminAuth = userAuth('admin');
+
+// Vue de login générique
+router.get('/login', function(req, res) {
   res.render('login');
 });
 // --- Route admin : liste des fichiers dans la corbeille ---
@@ -201,27 +220,30 @@ console.log(reqFile);
   });
 });
 // --- Gestion des comptes admin (API REST simple) ---
+
 router.get('/admin/users', adminAuth, (req, res) => {
-  loadAdminUsers();
-  res.json(adminUsers.map(u => ({ username: u.username })));
+  loadUsers();
+  res.json(users.map(u => ({ username: u.username, role: u.role })));
 });
 
+
 router.post('/admin/users', adminAuth, (req, res) => {
-  loadAdminUsers();
-  const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ error: 'Champs manquants' });
-  if (adminUsers.some(u => u.username === username)) return res.status(409).json({ error: 'Déjà existant' });
-  adminUsers.push({ username, password });
-  fs.writeFileSync(adminUsersPath, JSON.stringify(adminUsers, null, 2));
+  loadUsers();
+  const { username, password, role } = req.body;
+  if (!username || !password || !role) return res.status(400).json({ error: 'Champs manquants' });
+  if (users.some(u => u.username === username)) return res.status(409).json({ error: 'Déjà existant' });
+  users.push({ username, password, role });
+  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
   res.json({ ok: true });
 });
 
+
 router.delete('/admin/users', adminAuth, (req, res) => {
-  loadAdminUsers();
+  loadUsers();
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: 'Nom manquant' });
-  adminUsers = adminUsers.filter(u => u.username !== username);
-  fs.writeFileSync(adminUsersPath, JSON.stringify(adminUsers, null, 2));
+  users = users.filter(u => u.username !== username);
+  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
   res.json({ ok: true });
 });
 
