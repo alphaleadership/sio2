@@ -1,4 +1,3 @@
-
 // Dossier corbeille (non visible)
 
 var express = require('express');
@@ -182,6 +181,30 @@ const adminAuth = userAuth('admin');
 router.get('/login', function(req, res) {
   res.render('login');
 });
+// Route pour afficher le formulaire d'inscription
+router.get('/register', function(req, res) {
+  res.render('register');
+});
+
+// Route pour traiter l'inscription
+router.post('/register', express.urlencoded({ extended: true }), function(req, res) {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).send('Nom d\'utilisateur et mot de passe requis');
+  }
+  // Charger les utilisateurs existants
+  let users = [];
+  try {
+    users = JSON.parse(fs.readFileSync(path.join(__dirname, '../users.json')));
+  } catch (e) {}
+  if (users.find(u => u.username === username)) {
+    return res.status(400).send('Nom d\'utilisateur déjà utilisé');
+  }
+  users.push({ username, password });
+  fs.writeFileSync(path.join(__dirname, '../users.json'), JSON.stringify(users, null, 2));
+  res.redirect('/login');
+});
+
 // --- Route admin : liste des fichiers dans la corbeille ---
 router.get('/admin/trash', adminAuth, function(req, res) {
   try {
