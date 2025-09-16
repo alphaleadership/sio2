@@ -200,7 +200,7 @@ router.post('/register', express.urlencoded({ extended: true }), function(req, r
   if (users.find(u => u.username === username)) {
     return res.status(400).send('Nom d\'utilisateur déjà utilisé');
   }
-  users.push({ username, password });
+  users.push({ username:username, password:password,role:'user' });
   fs.writeFileSync(path.join(__dirname, '../users.json'), JSON.stringify(users, null, 2));
   res.redirect('/login');
 });
