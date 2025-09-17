@@ -1,4 +1,3 @@
-
 // Dossier corbeille (non visible)
 
 var express = require('express');
@@ -68,21 +67,21 @@ router.get('/', userAuth(), function(req, res, next) {
       const subPath = req.query.path.replace(relBase, '').replace(/^\/+/, '');
       const reqPath = subPath ? path.join(userDir, subPath) : userDir;
       if (!reqPath.startsWith(userDir)) return res.status(400).send('Chemin invalide.');
-      return renderFiles(req, res, reqPath, userDir, relBase);
+      return renderFiles(req, res, reqPath, baseDir, relBase);
     }
     // Navigation dans le partage global
     if (req.query.path && req.query.path.startsWith('/global')) {
-      const subPath = req.query.path.replace('/global', '').replace(/^\/+/, '');
+      const subPath = req.query.path.replace(/^\/+/, '').replace("/global","");
       const reqPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
       if (!reqPath.startsWith(globalShareDir)) return res.status(400).send('Chemin invalide.');
-      return renderFiles(req, res, reqPath, globalShareDir, '/global');
+      return renderFiles(req, res, reqPath, baseDir, '');
     }
     // Sinon, affiche le choix racine
     if (isRoot) {
       return res.render('index', { title: 'Explorateur de fichiers', files: [], path: '/', user: req.session.user, rootChoices });
     }
     // Empêche d'accéder à d'autres partages
-    return res.status(403).send('Accès interdit à ce dossier.');
+    return res.redirect('/');
   }
   // Admin : accès complet
   const reqPath = req.query.path ? path.join(baseDir, req.query.path) : baseDir;
@@ -92,11 +91,14 @@ router.get('/', userAuth(), function(req, res, next) {
 
 function renderFiles(req, res, reqPath, userDir, relBase) {
   function getFilesInDir(dirPath, relPath = "") {
-    const files = fs.readdirSync(dirPath, { withFileTypes: true });
+console.log(dirPath)
+console.log(relPath)   
+ const files = fs.readdirSync(dirPath.replace("global/global","global"), { withFileTypes: true });
     return files.map((file) => {
-      const fullPath = path.join(dirPath, file.name);
+      const fullPath = path.join(dirPath.replace("global/global","global"), file.name);
       const stats = fs.statSync(fullPath);
-      const relativePath = path.join(relPath, file.name);
+      const relativePath = path.join(relPath.replace("global/global","global"), file.name);
+console.log(relPath)
       return {
         name: relativePath.replace(/\\/g, '/'),
         fullPath: fullPath,
@@ -114,8 +116,12 @@ function renderFiles(req, res, reqPath, userDir, relBase) {
   let files = [];
   try {
     const relPath = path.relative(userDir, reqPath);
-    files = getFilesInDir(reqPath, relPath === "" ? "" : relPath);
+	console.log(relPath)
+console.log(reqPath)
+    files = getFilesInDir(reqPath,  relPath);
+console.log(files)
   } catch (err) {
+	console.log(err);
     return res.status(500).send("Erreur lors de la lecture du dossier.");
   }
   res.render('index', { title: 'Explorateur de fichiers', files: files, path: reqPath.replace(userDir, relBase).replace(/\\/g, '/'), user: req.session.user });
@@ -156,13 +162,13 @@ function userAuth(role = null) {
     if (user && (!role || user.role === role)) {
       if (req.session) req.session.user = { username: user.username, role: user.role };
       // Crée le dossier perso si non existant
-      if (user.role === 'user') {
+      //if (user.role === 'user') {
         const userDir = path.join(baseDir, 'users', user.username);
         if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
-      }
+      
       return next();
     }
-    if (req.accepts('html')) return res.redirect('/login');
+    if (req.accepts('html')) return res.redirect('/');
     res.set('WWW-Authenticate', 'Basic realm="User Area"');
     return res.status(401).send('Accès refusé');
   }
@@ -175,6 +181,30 @@ const adminAuth = userAuth('admin');
 router.get('/login', function(req, res) {
   res.render('login');
 });
+// Route pour afficher le formulaire d'inscription
+router.get('/register', function(req, res) {
+  res.render('register');
+});
+
+// Route pour traiter l'inscription
+router.post('/register', express.urlencoded({ extended: true }), function(req, res) {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).send('Nom d\'utilisateur et mot de passe requis');
+  }
+  // Charger les utilisateurs existants
+  let users = [];
+  try {
+    users = JSON.parse(fs.readFileSync(path.join(__dirname, '../users.json')));
+  } catch (e) {}
+  if (users.find(u => u.username === username)) {
+    return res.status(400).send('Nom d\'utilisateur déjà utilisé');
+  }
+  users.push({ username:username, password:password,role:'user' });
+  fs.writeFileSync(path.join(__dirname, '../users.json'), JSON.stringify(users, null, 2));
+  res.redirect('/login');
+});
+
 // --- Route admin : liste des fichiers dans la corbeille ---
 router.get('/admin/trash', adminAuth, function(req, res) {
   try {
