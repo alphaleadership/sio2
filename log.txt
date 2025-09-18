@@ -1,145 +1,134 @@
-Test spécifique d'un cas problématique:
+Test du cas spécifique:
 
-=== Test spécifique d'un cas de dossier problématique ===
+=== Test du cas spécifique mentionné ===
 
-folderPath: D:\partage\uploads
-file.relativePath: uploads/documents/document.pdf
-potentialPath: D:\partage\uploads\uploads\documents\document.pdf
-pathParts: [D:, partage, uploads, uploads, documents, document.pdf]
-hasDuplication: true
-→ Duplication détectée, utilise basename: document.pdf
-finalPath: D:\partage\uploads\document.pdf
-expectedPath: D:\partage\uploads\document.pdf
+Cas problématique spécifique:
+  req.body.path: "users/john"
+  webkitRelativePath: "users/john/document.pdf"
+  potentialPath: D:\partage\users\john\users\john\document.pdf
+  pathParts: [D:, partage, users, john, users, john, document.pdf]
+  hasDuplication: false
+  hasUserPatternDuplication: true
+  → Duplication détectée, utilise basename: document.pdf
+  finalPath: D:\partage\users\john\document.pdf
+  expectedPath: D:\partage\users\john\document.pdf
 
-Résultat: ✅ CORRECT
+Résultat: ✅ PROBLÈME RÉSOLU
+Le correctif fonctionne ! Plus de duplication /users/username/users/username
 
 ============================================================
 
-Test complet des uploads de dossiers:
-=== Test des uploads de dossiers avec plusieurs fichiers ===
+Test complet du correctif utilisateur:
+=== Test du correctif pour les espaces utilisateurs ===
 
 Base directory: D:\partage
 
-Test: Upload de dossier simple sans duplication
-  req.body.path: "projects"
-  Nombre de fichiers: 2
-  destFolder: D:\partage\projects
+Test: Upload utilisateur simple avec webkitRelativePath problématique
+  req.body.path: "users/john"
+  file.originalname: "document.pdf"
+  file.webkitRelativePath: users/john/document.pdf
+  → Duplication détectée, utilise basename
+  destFolder: D:\partage\users\john
   isFolderUpload: true
+  duplicationDetected: false
+  userPatternDuplicationDetected: true
+  subPath: document.pdf
+  destPath: D:\partage\users\john\document.pdf
+  expectedPath: D:\partage\users\john\document.pdf
+  ✓ Détection de duplication correcte
+  Result: ✓ PASS
+  ✓ Aucune duplication finale
 
-  Fichier 1: index.html
-    webkitRelativePath: mon-site/index.html
-    relativePath: mon-site/index.html
-    → Pas de duplication, utilise chemin complet: mon-site/index.html
-    filePath final: D:\partage\projects\mon-site\index.html
-    attendu: D:\partage\projects\mon-site\index.html
-    match: ✓
-      ✓ Pas de duplication finale
-
-  Fichier 2: style.css
-    webkitRelativePath: mon-site/css/style.css
-    relativePath: mon-site/css/style.css
-    → Pas de duplication, utilise chemin complet: mon-site/css/style.css
-    filePath final: D:\partage\projects\mon-site\css\style.css
-    attendu: D:\partage\projects\mon-site\css\style.css
-    match: ✓
-      ✓ Pas de duplication finale
-
-  Résultat global: ✓ PASS
-
-Test: Upload de dossier avec duplication potentielle
-  req.body.path: "projects"
-  Nombre de fichiers: 2
-  destFolder: D:\partage\projects
+Test: Upload utilisateur dans sous-dossier avec duplication
+  req.body.path: "users/alice/documents"
+  file.originalname: "rapport.pdf"
+  file.webkitRelativePath: users/alice/documents/rapport.pdf
+  → Duplication détectée, utilise basename
+  destFolder: D:\partage\users\alice\documents
   isFolderUpload: true
+  duplicationDetected: false
+  userPatternDuplicationDetected: true
+  subPath: rapport.pdf
+  destPath: D:\partage\users\alice\documents\rapport.pdf
+  expectedPath: D:\partage\users\alice\documents\rapport.pdf
+  ✓ Détection de duplication correcte
+  Result: ✓ PASS
+  ✓ Aucune duplication finale
 
-  Fichier 1: index.html
-    webkitRelativePath: projects/mon-site/index.html
-    relativePath: projects/mon-site/index.html
-    → Duplication détectée, utilise basename: index.html
-    filePath final: D:\partage\projects\index.html
-    attendu: D:\partage\projects\index.html
-    match: ✓
-      ✓ Pas de duplication finale
-
-  Fichier 2: style.css
-    webkitRelativePath: projects/css/style.css
-    relativePath: projects/css/style.css
-    → Duplication détectée, utilise basename: style.css
-    filePath final: D:\partage\projects\style.css
-    attendu: D:\partage\projects\style.css
-    match: ✓
-      ✓ Pas de duplication finale
-
-  Résultat global: ✓ PASS
-
-Test: Upload de dossier mixte (avec et sans duplication)
-  req.body.path: "uploads"
-  Nombre de fichiers: 2
-  destFolder: D:\partage\uploads
+Test: Upload utilisateur légitime sans duplication
+  req.body.path: "users/bob"
+  file.originalname: "index.html"
+  file.webkitRelativePath: mon-projet/index.html
+  → Pas de duplication, utilise webkitRelativePath
+  destFolder: D:\partage\users\bob
   isFolderUpload: true
+  duplicationDetected: false
+  userPatternDuplicationDetected: false
+  subPath: mon-projet/index.html
+  destPath: D:\partage\users\bob\mon-projet\index.html
+  expectedPath: D:\partage\users\bob\mon-projet\index.html
+  ✓ Détection de duplication correcte
+  Result: ✓ PASS
+  ✓ Aucune duplication finale
 
-  Fichier 1: readme.md
-    webkitRelativePath: projet/readme.md
-    relativePath: projet/readme.md
-    → Pas de duplication, utilise chemin complet: projet/readme.md
-    filePath final: D:\partage\uploads\projet\readme.md
-    attendu: D:\partage\uploads\projet\readme.md
-    match: ✓
-      ✓ Pas de duplication finale
+Test: Upload utilisateur avec duplication de nom d'utilisateur
+  req.body.path: "users/charlie"
+  file.originalname: "config.json"
+  file.webkitRelativePath: charlie/settings/config.json
+  → Duplication détectée, utilise basename
+  destFolder: D:\partage\users\charlie
+  isFolderUpload: true
+  duplicationDetected: true
+  userPatternDuplicationDetected: true
+  subPath: config.json
+  destPath: D:\partage\users\charlie\config.json
+  expectedPath: D:\partage\users\charlie\config.json
+  ✓ Détection de duplication correcte
+  Result: ✓ PASS
+  ✓ Aucune duplication finale
 
-  Fichier 2: config.json
-    webkitRelativePath: uploads/config.json
-    relativePath: uploads/config.json
-    → Duplication détectée, utilise basename: config.json
-    filePath final: D:\partage\uploads\config.json
-    attendu: D:\partage\uploads\config.json
-    match: ✓
-      ✓ Pas de duplication finale
+=== Test des patterns utilisateur spécifiques ===
 
-  Résultat global: ✓ PASS
+Pattern: Double users/
+  Chemin: /partage/users/john/users/john/file.txt
+  Segments: [partage, users, john, users, john, file.txt]
+  Duplication détectée: true
+  Devrait détecter: true
+  Résultat: ✓
 
-=== Tests des cas edge pour dossiers ===
+Pattern: Duplication nom utilisateur
+  Chemin: /partage/users/alice/alice/documents/file.txt
+  Segments: [partage, users, alice, alice, documents, file.txt]
+  Duplication détectée: true
+  Devrait détecter: true
+  Résultat: ✓
 
-Test edge: Dossier avec structure profonde et duplication
-  Fichier: file.txt
-  relativePath: deep/level1/deep/file.txt
-  potentialPath: D:\partage\deep\deep\level1\deep\file.txt
-  pathParts: [D:, partage, deep, deep, level1, deep, file.txt]
-  ⚠️  Duplications détectées:
-    - "deep" à la position 3
-  → Correction: utilise basename "file.txt"
-  → Chemin final: D:\partage\deep\file.txt
+Pattern: Pattern légitime avec répétition
+  Chemin: /partage/users/bob/projects/bob-project/file.txt
+  Segments: [partage, users, bob, projects, bob-project, file.txt]
+  Duplication détectée: false
+  Devrait détecter: false
+  Résultat: ✓
 
-Test edge: Dossier avec duplications multiples
-  Fichier: file1.txt
-  relativePath: test/test/test/file1.txt
-  potentialPath: D:\partage\test\test\test\test\file1.txt
-  pathParts: [D:, partage, test, test, test, test, file1.txt]
-  ⚠️  Duplications détectées:
-    - "test" à la position 3
-    - "test" à la position 4
-    - "test" à la position 5
-  → Correction: utilise basename "file1.txt"
-  → Chemin final: D:\partage\test\file1.txt
-
-Test edge: Dossier sans duplication mais avec répétition légitime
-  Fichier: project.js
-  relativePath: my-project/project-files/project.js
-  potentialPath: D:\partage\projects\my-project\project-files\project.js
-  pathParts: [D:, partage, projects, my-project, project-files, project.js]
-  ✓ Aucune duplication détectée
-  → Chemin final: D:\partage\projects\my-project\project-files\project.js
+Pattern: Triple duplication utilisateur
+  Chemin: /partage/users/charlie/users/charlie/charlie/file.txt
+  Segments: [partage, users, charlie, users, charlie, charlie, file.txt]
+  Duplication détectée: true
+  Devrait détecter: true
+  Résultat: ✓
 
 === Résumé ===
-🎉 Tous les tests de dossiers sont passés !
+🎉 Tous les tests d'espaces utilisateurs sont passés !
 
-Logique anti-duplication pour dossiers confirmée:
-- Détection de duplication pour chaque fichier du dossier
+Correctif des espaces utilisateurs confirmé:
+- Détection des duplications consécutives
+- Détection des duplications de pattern utilisateur
 - Correction automatique avec basename quand nécessaire
 - Préservation des structures légitimes
-- Gestion des cas edge complexes
 
 === RÉSULTAT FINAL ===
-Cas spécifique: ✅
-Tous les tests de dossiers: ✅
+Cas spécifique résolu: ✅
+Tous les tests utilisateur: ✅
 Succès global: ✅
+
+🎉 Le problème de duplication dans les espaces utilisateurs est résolu !
