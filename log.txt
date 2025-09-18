@@ -1,134 +1,40 @@
-Test du cas spécifique:
+[31m✖ PerformanceMonitor [90m(0.6108ms)[39m[39m
+[31m✖ PerformanceBenchmark [90m(0.0902ms)[39m[39m
+[34mℹ tests 0[39m
+[34mℹ suites 2[39m
+[34mℹ pass 0[39m
+[34mℹ fail 0[39m
+[34mℹ cancelled 0[39m
+[34mℹ skipped 0[39m
+[34mℹ todo 0[39m
+[34mℹ duration_ms 8.3395[39m
 
-=== Test du cas spécifique mentionné ===
+[31m✖ failing tests:[39m
 
-Cas problématique spécifique:
-  req.body.path: "users/john"
-  webkitRelativePath: "users/john/document.pdf"
-  potentialPath: D:\partage\users\john\users\john\document.pdf
-  pathParts: [D:, partage, users, john, users, john, document.pdf]
-  hasDuplication: false
-  hasUserPatternDuplication: true
-  → Duplication détectée, utilise basename: document.pdf
-  finalPath: D:\partage\users\john\document.pdf
-  expectedPath: D:\partage\users\john\document.pdf
+test at test\upload\PerformanceMonitor.test.js:7:1
+[31m✖ PerformanceMonitor [90m(0.6108ms)[39m[39m
+  ReferenceError: beforeEach is not defined
+      at SuiteContext.<anonymous> (D:\partagesio\test\upload\PerformanceMonitor.test.js:10:3)
+      at Suite.runInAsyncScope (node:async_hooks:214:14)
+      at Suite.createBuild (node:internal/test_runner/test:1476:13)
+      at new Suite (node:internal/test_runner/test:1467:28)
+      at Test.createSubtest (node:internal/test_runner/test:865:18)
+      at run (node:internal/test_runner/harness:364:28)
+      at test (node:internal/test_runner/harness:378:12)
+      at Object.<anonymous> (D:\partagesio\test\upload\PerformanceMonitor.test.js:7:1)
+      at Module._compile (node:internal/modules/cjs/loader:1738:14)
+      at Object..js (node:internal/modules/cjs/loader:1871:10)
 
-Résultat: ✅ PROBLÈME RÉSOLU
-Le correctif fonctionne ! Plus de duplication /users/username/users/username
-
-============================================================
-
-Test complet du correctif utilisateur:
-=== Test du correctif pour les espaces utilisateurs ===
-
-Base directory: D:\partage
-
-Test: Upload utilisateur simple avec webkitRelativePath problématique
-  req.body.path: "users/john"
-  file.originalname: "document.pdf"
-  file.webkitRelativePath: users/john/document.pdf
-  → Duplication détectée, utilise basename
-  destFolder: D:\partage\users\john
-  isFolderUpload: true
-  duplicationDetected: false
-  userPatternDuplicationDetected: true
-  subPath: document.pdf
-  destPath: D:\partage\users\john\document.pdf
-  expectedPath: D:\partage\users\john\document.pdf
-  ✓ Détection de duplication correcte
-  Result: ✓ PASS
-  ✓ Aucune duplication finale
-
-Test: Upload utilisateur dans sous-dossier avec duplication
-  req.body.path: "users/alice/documents"
-  file.originalname: "rapport.pdf"
-  file.webkitRelativePath: users/alice/documents/rapport.pdf
-  → Duplication détectée, utilise basename
-  destFolder: D:\partage\users\alice\documents
-  isFolderUpload: true
-  duplicationDetected: false
-  userPatternDuplicationDetected: true
-  subPath: rapport.pdf
-  destPath: D:\partage\users\alice\documents\rapport.pdf
-  expectedPath: D:\partage\users\alice\documents\rapport.pdf
-  ✓ Détection de duplication correcte
-  Result: ✓ PASS
-  ✓ Aucune duplication finale
-
-Test: Upload utilisateur légitime sans duplication
-  req.body.path: "users/bob"
-  file.originalname: "index.html"
-  file.webkitRelativePath: mon-projet/index.html
-  → Pas de duplication, utilise webkitRelativePath
-  destFolder: D:\partage\users\bob
-  isFolderUpload: true
-  duplicationDetected: false
-  userPatternDuplicationDetected: false
-  subPath: mon-projet/index.html
-  destPath: D:\partage\users\bob\mon-projet\index.html
-  expectedPath: D:\partage\users\bob\mon-projet\index.html
-  ✓ Détection de duplication correcte
-  Result: ✓ PASS
-  ✓ Aucune duplication finale
-
-Test: Upload utilisateur avec duplication de nom d'utilisateur
-  req.body.path: "users/charlie"
-  file.originalname: "config.json"
-  file.webkitRelativePath: charlie/settings/config.json
-  → Duplication détectée, utilise basename
-  destFolder: D:\partage\users\charlie
-  isFolderUpload: true
-  duplicationDetected: true
-  userPatternDuplicationDetected: true
-  subPath: config.json
-  destPath: D:\partage\users\charlie\config.json
-  expectedPath: D:\partage\users\charlie\config.json
-  ✓ Détection de duplication correcte
-  Result: ✓ PASS
-  ✓ Aucune duplication finale
-
-=== Test des patterns utilisateur spécifiques ===
-
-Pattern: Double users/
-  Chemin: /partage/users/john/users/john/file.txt
-  Segments: [partage, users, john, users, john, file.txt]
-  Duplication détectée: true
-  Devrait détecter: true
-  Résultat: ✓
-
-Pattern: Duplication nom utilisateur
-  Chemin: /partage/users/alice/alice/documents/file.txt
-  Segments: [partage, users, alice, alice, documents, file.txt]
-  Duplication détectée: true
-  Devrait détecter: true
-  Résultat: ✓
-
-Pattern: Pattern légitime avec répétition
-  Chemin: /partage/users/bob/projects/bob-project/file.txt
-  Segments: [partage, users, bob, projects, bob-project, file.txt]
-  Duplication détectée: false
-  Devrait détecter: false
-  Résultat: ✓
-
-Pattern: Triple duplication utilisateur
-  Chemin: /partage/users/charlie/users/charlie/charlie/file.txt
-  Segments: [partage, users, charlie, users, charlie, charlie, file.txt]
-  Duplication détectée: true
-  Devrait détecter: true
-  Résultat: ✓
-
-=== Résumé ===
-🎉 Tous les tests d'espaces utilisateurs sont passés !
-
-Correctif des espaces utilisateurs confirmé:
-- Détection des duplications consécutives
-- Détection des duplications de pattern utilisateur
-- Correction automatique avec basename quand nécessaire
-- Préservation des structures légitimes
-
-=== RÉSULTAT FINAL ===
-Cas spécifique résolu: ✅
-Tous les tests utilisateur: ✅
-Succès global: ✅
-
-🎉 Le problème de duplication dans les espaces utilisateurs est résolu !
+test at test\upload\PerformanceMonitor.test.js:364:1
+[31m✖ PerformanceBenchmark [90m(0.0902ms)[39m[39m
+  ReferenceError: beforeEach is not defined
+      at SuiteContext.<anonymous> (D:\partagesio\test\upload\PerformanceMonitor.test.js:367:3)
+      at Suite.runInAsyncScope (node:async_hooks:214:14)
+      at Suite.createBuild (node:internal/test_runner/test:1476:13)
+      at new Suite (node:internal/test_runner/test:1467:28)
+      at Test.createSubtest (node:internal/test_runner/test:865:18)
+      at run (node:internal/test_runner/harness:364:28)
+      at test (node:internal/test_runner/harness:378:12)
+      at Object.<anonymous> (D:\partagesio\test\upload\PerformanceMonitor.test.js:364:1)
+      at Module._compile (node:internal/modules/cjs/loader:1738:14)
+      at Object..js (node:internal/modules/cjs/loader:1871:10)
