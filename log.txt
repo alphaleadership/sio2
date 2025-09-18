@@ -1,83 +1,145 @@
-=== Test: Ignorer webkitRelativePath pour uploads individuels ===
+Test spécifique d'un cas problématique:
+
+=== Test spécifique d'un cas de dossier problématique ===
+
+folderPath: D:\partage\uploads
+file.relativePath: uploads/documents/document.pdf
+potentialPath: D:\partage\uploads\uploads\documents\document.pdf
+pathParts: [D:, partage, uploads, uploads, documents, document.pdf]
+hasDuplication: true
+→ Duplication détectée, utilise basename: document.pdf
+finalPath: D:\partage\uploads\document.pdf
+expectedPath: D:\partage\uploads\document.pdf
+
+Résultat: ✅ CORRECT
+
+============================================================
+
+Test complet des uploads de dossiers:
+=== Test des uploads de dossiers avec plusieurs fichiers ===
 
 Base directory: D:\partage
 
-Test: Upload individuel avec webkitRelativePath problématique
-  req.body.path: "documents"
-  file.originalname: "rapport.pdf"
-  file.webkitRelativePath: documents/rapport.pdf
-  → Utilise webkitRelativePath (upload de dossier)
-  destFolder: D:\partage\documents
-  isFolderUpload: true
-  subPath: documents/rapport.pdf
-  destPath: D:\partage\documents\documents\rapport.pdf
-  expectedPath: D:\partage\documents\rapport.pdf
-  ✗ ERREUR: webkitRelativePath devrait être ignoré mais a été utilisé
-  Result: ✗ FAIL
-    Différence détectée:
-      Calculé:  "D:\partage\documents\documents\rapport.pdf"
-      Attendu:  "D:\partage\documents\rapport.pdf"
-  ⚠️  DUPLICATION DÉTECTÉE dans le chemin !
-    Segments: [D:, partage, documents, documents, rapport.pdf]
-
-Test: Upload individuel sans webkitRelativePath
-  req.body.path: "documents"
-  file.originalname: "rapport.pdf"
-  file.webkitRelativePath: undefined
-  → Ignore webkitRelativePath (upload individuel)
-  destFolder: D:\partage\documents
-  isFolderUpload: false
-  subPath: rapport.pdf
-  destPath: D:\partage\documents\rapport.pdf
-  expectedPath: D:\partage\documents\rapport.pdf
-  ✓ webkitRelativePath géré correctement
-  Result: ✓ PASS
-  ✓ Aucune duplication détectée
-
-Test: Upload de dossier avec webkitRelativePath légitime
+Test: Upload de dossier simple sans duplication
   req.body.path: "projects"
-  file.originalname: "index.html"
-  file.webkitRelativePath: mon-site/index.html
-  → Utilise webkitRelativePath (upload de dossier)
+  Nombre de fichiers: 2
   destFolder: D:\partage\projects
   isFolderUpload: true
-  subPath: mon-site/index.html
-  destPath: D:\partage\projects\mon-site\index.html
-  expectedPath: D:\partage\projects\mon-site\index.html
-  ✓ webkitRelativePath géré correctement
-  Result: ✓ PASS
-  ✓ Aucune duplication détectée
 
-Test: Upload individuel à la racine avec webkitRelativePath
-  req.body.path: ""
-  file.originalname: "test.txt"
-  file.webkitRelativePath: test.txt
-  → Ignore webkitRelativePath (upload individuel)
-  destFolder: D:\partage
-  isFolderUpload: false
-  subPath: test.txt
-  destPath: D:\partage\test.txt
-  expectedPath: D:\partage\test.txt
-  ✗ ERREUR: webkitRelativePath devrait être ignoré mais a été utilisé
-  Result: ✓ PASS
-  ✓ Aucune duplication détectée
+  Fichier 1: index.html
+    webkitRelativePath: mon-site/index.html
+    relativePath: mon-site/index.html
+    → Pas de duplication, utilise chemin complet: mon-site/index.html
+    filePath final: D:\partage\projects\mon-site\index.html
+    attendu: D:\partage\projects\mon-site\index.html
+    match: ✓
+      ✓ Pas de duplication finale
 
-=== Tests des cas edge ===
+  Fichier 2: style.css
+    webkitRelativePath: mon-site/css/style.css
+    relativePath: mon-site/css/style.css
+    → Pas de duplication, utilise chemin complet: mon-site/css/style.css
+    filePath final: D:\partage\projects\mon-site\css\style.css
+    attendu: D:\partage\projects\mon-site\css\style.css
+    match: ✓
+      ✓ Pas de duplication finale
 
-Test edge: webkitRelativePath avec plusieurs niveaux pour upload individuel
-  webkitRelativePath: "uploads/subfolder/file.txt"
+  Résultat global: ✓ PASS
+
+Test: Upload de dossier avec duplication potentielle
+  req.body.path: "projects"
+  Nombre de fichiers: 2
+  destFolder: D:\partage\projects
   isFolderUpload: true
-  subPath utilisé: "uploads/subfolder/file.txt"
-  destPath: "D:\partage\uploads\uploads\subfolder\file.txt"
-  ⚠️  Duplications: [uploads]
 
-Test edge: webkitRelativePath identique au body.path
-  webkitRelativePath: "documents"
-  isFolderUpload: false
-  subPath utilisé: "test.pdf"
-  destPath: "D:\partage\documents\test.pdf"
-  ✓ Pas de duplication
+  Fichier 1: index.html
+    webkitRelativePath: projects/mon-site/index.html
+    relativePath: projects/mon-site/index.html
+    → Duplication détectée, utilise basename: index.html
+    filePath final: D:\partage\projects\index.html
+    attendu: D:\partage\projects\index.html
+    match: ✓
+      ✓ Pas de duplication finale
+
+  Fichier 2: style.css
+    webkitRelativePath: projects/css/style.css
+    relativePath: projects/css/style.css
+    → Duplication détectée, utilise basename: style.css
+    filePath final: D:\partage\projects\style.css
+    attendu: D:\partage\projects\style.css
+    match: ✓
+      ✓ Pas de duplication finale
+
+  Résultat global: ✓ PASS
+
+Test: Upload de dossier mixte (avec et sans duplication)
+  req.body.path: "uploads"
+  Nombre de fichiers: 2
+  destFolder: D:\partage\uploads
+  isFolderUpload: true
+
+  Fichier 1: readme.md
+    webkitRelativePath: projet/readme.md
+    relativePath: projet/readme.md
+    → Pas de duplication, utilise chemin complet: projet/readme.md
+    filePath final: D:\partage\uploads\projet\readme.md
+    attendu: D:\partage\uploads\projet\readme.md
+    match: ✓
+      ✓ Pas de duplication finale
+
+  Fichier 2: config.json
+    webkitRelativePath: uploads/config.json
+    relativePath: uploads/config.json
+    → Duplication détectée, utilise basename: config.json
+    filePath final: D:\partage\uploads\config.json
+    attendu: D:\partage\uploads\config.json
+    match: ✓
+      ✓ Pas de duplication finale
+
+  Résultat global: ✓ PASS
+
+=== Tests des cas edge pour dossiers ===
+
+Test edge: Dossier avec structure profonde et duplication
+  Fichier: file.txt
+  relativePath: deep/level1/deep/file.txt
+  potentialPath: D:\partage\deep\deep\level1\deep\file.txt
+  pathParts: [D:, partage, deep, deep, level1, deep, file.txt]
+  ⚠️  Duplications détectées:
+    - "deep" à la position 3
+  → Correction: utilise basename "file.txt"
+  → Chemin final: D:\partage\deep\file.txt
+
+Test edge: Dossier avec duplications multiples
+  Fichier: file1.txt
+  relativePath: test/test/test/file1.txt
+  potentialPath: D:\partage\test\test\test\test\file1.txt
+  pathParts: [D:, partage, test, test, test, test, file1.txt]
+  ⚠️  Duplications détectées:
+    - "test" à la position 3
+    - "test" à la position 4
+    - "test" à la position 5
+  → Correction: utilise basename "file1.txt"
+  → Chemin final: D:\partage\test\file1.txt
+
+Test edge: Dossier sans duplication mais avec répétition légitime
+  Fichier: project.js
+  relativePath: my-project/project-files/project.js
+  potentialPath: D:\partage\projects\my-project\project-files\project.js
+  pathParts: [D:, partage, projects, my-project, project-files, project.js]
+  ✓ Aucune duplication détectée
+  → Chemin final: D:\partage\projects\my-project\project-files\project.js
 
 === Résumé ===
-❌ Certains tests ont échoué.
-La logique doit être ajustée pour ignorer webkitRelativePath dans tous les cas d'upload individuel.
+🎉 Tous les tests de dossiers sont passés !
+
+Logique anti-duplication pour dossiers confirmée:
+- Détection de duplication pour chaque fichier du dossier
+- Correction automatique avec basename quand nécessaire
+- Préservation des structures légitimes
+- Gestion des cas edge complexes
+
+=== RÉSULTAT FINAL ===
+Cas spécifique: ✅
+Tous les tests de dossiers: ✅
+Succès global: ✅
