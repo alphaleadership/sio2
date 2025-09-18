@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <style>
+    .stats-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #007bff;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9em;
+    }
+    
+    .section {
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .section h2 {
+      margin-top: 0;
+      color: #343a40;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    
+    .table th,
+    .table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+    }
+    
+    .table tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .progress-bar {
+      background-color: #e9ecef;
+      border-radius: 4px;
+      height: 20px;
+      overflow: hidden;
+      margin: 5px 0;
+    }
+    
+    .progress-fill {
+      background-color: #28a745;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    
+    .nav-links {
+      margin-bottom: 20px;
+    }
+    
+    .nav-links a {
+      display: inline-block;
+      padding: 8px 16px;
+      margin-right: 10px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    
+    .nav-links a:hover {
+      background-color: #0056b3;
+    }
+    
+    .efficiency-indicator {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+    
+    .efficiency-high {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .efficiency-medium {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+    
+    .efficiency-low {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    
+    .no-data {
+      text-align: center;
+      color: #6c757d;
+      font-style: italic;
+      padding: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="stats-container">
+    <div class="nav-links">
+      <a href="/">← Retour à l'accueil</a>
+      <a href="/admin/users/manage">Gestion des utilisateurs</a>
+      <a href="/admin/trash">Corbeille</a>
+    </div>
+
+    <h1><%= title %></h1>
+    
+    <% if (globalStats.totalFilesProcessed === 0) { %>
+      <div class="no-data">
+        <h3>Aucune statistique disponible</h3>
+        <p>Aucun fichier n'a encore été traité par le système de compression.</p>
+      </div>
+    <% } else { %>
+      <!-- Statistiques globales -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value"><%= globalStats.totalFilesProcessed %></div>
+          <div class="stat-label">Fichiers traités</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-value"><%= globalStats.totalFilesCompressed %></div>
+          <div class="stat-label">Fichiers compressés</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-value"><%= globalStats.compressionRate.toFixed(1) %>%</div>
+          <div class="stat-label">Taux de compression</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-value"><%= globalStats.formattedSpaceSaved %></div>
+          <div class="stat-label">Espace économisé</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-value"><%= (globalStats.averageCompressionRatio * 100).toFixed(1) %>%</div>
+          <div class="stat-label">Ratio moyen</div>
+        </div>
+      </div>
+
+      <!-- Statistiques par type de fichier -->
+      <div class="section">
+        <h2>Statistiques par type de fichier</h2>
+        <% if (Object.keys(statsByType).length === 0) { %>
+          <p class="no-data">Aucune donnée par type de fichier disponible.</p>
+        <% } else { %>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Type de fichier</th>
+                <th>Fichiers traités</th>
+                <th>Fichiers compressés</th>
+                <th>Taux de réussite</th>
+                <th>Espace économisé</th>
+                <th>Ratio moyen</th>
+                <th>Efficacité</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% Object.entries(statsByType).forEach(([fileType, stats]) => { %>
+                <tr>
+                  <td><strong><%= fileType %></strong></td>
+                  <td><%= stats.filesProcessed %></td>
+                  <td><%= stats.filesCompressed %></td>
+                  <td>
+                    <%= stats.compressionRate.toFixed(1) %>%
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: <%= stats.compressionRate %>%"></div>
+                    </div>
+                  </td>
+                  <td><%= stats.formattedSpaceSaved %></td>
+                  <td><%= (stats.averageCompressionRatio * 100).toFixed(1) %>%</td>
+                  <td>
+                    <% 
+                      let efficiencyClass = 'efficiency-low';
+                      if (stats.averageCompressionRatio < 0.7) efficiencyClass = 'efficiency-high';
+                      else if (stats.averageCompressionRatio < 0.9) efficiencyClass = 'efficiency-medium';
+                    %>
+                    <span class="efficiency-indicator <%= efficiencyClass %>">
+                      <% if (stats.averageCompressionRatio < 0.7) { %>Excellente<% } 
+                         else if (stats.averageCompressionRatio < 0.9) { %>Bonne<% } 
+                         else { %>Faible<% } %>
+                    </span>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+
+      <!-- Top performers -->
+      <div class="section">
+        <h2>Performances par catégorie</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+          <!-- Types les plus efficaces -->
+          <div>
+            <h3>Types les plus efficaces</h3>
+            <% if (topPerformers.mostEfficient.length === 0) { %>
+              <p class="no-data">Aucune donnée d'efficacité disponible.</p>
+            <% } else { %>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Ratio</th>
+                    <th>Fichiers</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% topPerformers.mostEfficient.forEach((item, index) => { %>
+                    <tr>
+                      <td><%= item.type %></td>
+                      <td><%= (item.compressionRatio * 100).toFixed(1) %>%</td>
+                      <td><%= item.filesCompressed %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            <% } %>
+          </div>
+          
+          <!-- Types économisant le plus d'espace -->
+          <div>
+            <h3>Plus d'espace économisé</h3>
+            <% if (topPerformers.mostSpaceSaved.length === 0) { %>
+              <p class="no-data">Aucune donnée d'économie d'espace disponible.</p>
+            <% } else { %>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Espace économisé</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% topPerformers.mostSpaceSaved.forEach((item, index) => { %>
+                    <tr>
+                      <td><%= item.type %></td>
+                      <td>
+                        <% 
+                          // Formater l'espace économisé
+                          const formatBytes = (bytes) => {
+                            if (bytes === 0) return '0 B';
+                            const k = 1024;
+                            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                            const i = Math.floor(Math.log(bytes) / Math.log(k));
+                            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+                          };
+                        %>
+                        <%= formatBytes(item.spaceSaved) %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations système -->
+      <div class="section">
+        <h2>Informations système</h2>
+        <p><strong>Dernière mise à jour :</strong> <%= new Date(globalStats.lastUpdated).toLocaleString('fr-FR') %></p>
+        <p><strong>Rapport généré le :</strong> <%= new Date(report.generatedAt).toLocaleString('fr-FR') %></p>
+        <p><strong>Efficacité globale :</strong> <%= globalStats.efficiency %></p>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>

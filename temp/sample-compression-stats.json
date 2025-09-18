@@ -1,0 +1,57 @@
+{
+  "totalFilesProcessed": 150,
+  "totalFilesCompressed": 120,
+  "totalSpaceSaved": 2048576,
+  "averageCompressionRatio": 0.65,
+  "compressionsByType": {
+    ".txt": {
+      "filesProcessed": 45,
+      "filesCompressed": 42,
+      "totalOriginalSize": 512000,
+      "totalCompressedSize": 256000,
+      "totalSpaceSaved": 256000,
+      "averageCompressionRatio": 0.5
+    },
+    ".js": {
+      "filesProcessed": 35,
+      "filesCompressed": 30,
+      "totalOriginalSize": 1024000,
+      "totalCompressedSize": 716800,
+      "totalSpaceSaved": 307200,
+      "averageCompressionRatio": 0.7
+    },
+    ".css": {
+      "filesProcessed": 20,
+      "filesCompressed": 18,
+      "totalOriginalSize": 256000,
+      "totalCompressedSize": 153600,
+      "totalSpaceSaved": 102400,
+      "averageCompressionRatio": 0.6
+    },
+    ".html": {
+      "filesProcessed": 25,
+      "filesCompressed": 20,
+      "totalOriginalSize": 384000,
+      "totalCompressedSize": 268800,
+      "totalSpaceSaved": 115200,
+      "averageCompressionRatio": 0.7
+    },
+    ".json": {
+      "filesProcessed": 15,
+      "filesCompressed": 10,
+      "totalOriginalSize": 128000,
+      "totalCompressedSize": 89600,
+      "totalSpaceSaved": 38400,
+      "averageCompressionRatio": 0.7
+    },
+    ".xml": {
+      "filesProcessed": 10,
+      "filesCompressed": 0,
+      "totalOriginalSize": 64000,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1.0
+    }
+  },
+  "lastUpdated": "2025-01-18T10:30:00.000Z"
+}

@@ -4,14 +4,45 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-
 // Ajout de la configuration de session
-
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+// Initialisation de la configuration de compression globale
+async function initializeCompressionConfig() {
+  try {
+    const CompressionConfig = require('./lib/compression/CompressionConfig');
+    const configPath = path.join(__dirname, 'temp', 'compression-config.json');
+    
+    // Charger la configuration depuis le fichier ou utiliser les valeurs par défaut
+    global.compressionConfig = await CompressionConfig.loadFromFile(configPath);
+    global.compressionConfigLoadedAt = new Date().toISOString();
+    
+    console.log('Configuration de compression chargée:', {
+      level: global.compressionConfig.compressionLevel,
+      algorithm: global.compressionConfig.algorithm,
+      minSize: global.compressionConfig.minFileSize,
+      maxSize: global.compressionConfig.maxFileSize,
+      loadedAt: global.compressionConfigLoadedAt
+    });
+    
+    // Sauvegarder la configuration par défaut si le fichier n'existait pas
+    await global.compressionConfig.saveToFile(configPath);
+    
+  } catch (error) {
+    console.error('Erreur lors de l\'initialisation de la configuration de compression:', error);
+    // Utiliser la configuration par défaut en cas d'erreur
+    const CompressionConfig = require('./lib/compression/CompressionConfig');
+    global.compressionConfig = new CompressionConfig();
+  }
+}
+
+// Initialiser la configuration de compression de manière asynchrone
+initializeCompressionConfig().catch(console.error);
+
 require('./session-config')(app);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

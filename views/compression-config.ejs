@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <style>
+    .config-form {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    .form-group textarea {
+      height: 80px;
+      resize: vertical;
+    }
+    
+    .form-group small {
+      display: block;
+      margin-top: 5px;
+      color: #666;
+      font-size: 12px;
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .form-row .form-group {
+      flex: 1;
+    }
+    
+    .btn {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    
+    .btn:hover {
+      background: #0056b3;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+    }
+    
+    .btn-secondary:hover {
+      background: #545b62;
+    }
+    
+    .alert {
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .config-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .config-section h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #495057;
+      border-bottom: 2px solid #e9ecef;
+      padding-bottom: 8px;
+    }
+    
+    .nav-links {
+      margin-bottom: 20px;
+    }
+    
+    .nav-links a {
+      display: inline-block;
+      margin-right: 15px;
+      padding: 8px 16px;
+      background: #e9ecef;
+      color: #495057;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .nav-links a:hover {
+      background: #dee2e6;
+    }
+    
+    .current-values {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 5px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1><%= title %></h1>
+  
+  <div class="nav-links">
+    <a href="/">← Retour à l'accueil</a>
+    <a href="/admin/compression-stats">Statistiques</a>
+    <a href="/admin/users/manage">Gestion utilisateurs</a>
+    <a href="/admin/trash">Corbeille</a>
+  </div>
+
+  <% if (message) { %>
+    <div class="alert alert-<%= messageType %>">
+      <%= message %>
+    </div>
+  <% } %>
+
+  <div class="config-form">
+    <form method="POST" action="/admin/compression-config">
+      
+      <!-- Section Paramètres Généraux -->
+      <div class="config-section">
+        <h3>Paramètres Généraux</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="compressionLevel">Niveau de compression (1-9)</label>
+            <input type="number" id="compressionLevel" name="compressionLevel" 
+                   value="<%= config.compressionLevel %>" min="1" max="9" required>
+            <small>1 = plus rapide, 9 = meilleure compression. Recommandé: 6</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="algorithm">Algorithme de compression</label>
+            <select id="algorithm" name="algorithm" required>
+              <option value="gzip" <%= config.algorithm === 'gzip' ? 'selected' : '' %>>gzip (recommandé)</option>
+              <option value="brotli" <%= config.algorithm === 'brotli' ? 'selected' : '' %>>brotli (meilleur ratio)</option>
+              <option value="lz4" <%= config.algorithm === 'lz4' ? 'selected' : '' %>>lz4 (plus rapide)</option>
+            </select>
+            <small>gzip offre le meilleur compromis vitesse/compression</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Limites de Taille -->
+      <div class="config-section">
+        <h3>Limites de Taille</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="minFileSize">Taille minimale (bytes)</label>
+            <input type="number" id="minFileSize" name="minFileSize" 
+                   value="<%= config.minFileSize %>" min="0" required>
+            <small>Fichiers plus petits ne seront pas compressés (recommandé: 1024)</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="maxFileSize">Taille maximale (bytes)</label>
+            <input type="number" id="maxFileSize" name="maxFileSize" 
+                   value="<%= config.maxFileSize %>" min="1" required>
+            <small>Fichiers plus gros ne seront pas compressés (recommandé: 104857600 = 100MB)</small>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="compressionTimeout">Timeout de compression (millisecondes)</label>
+          <input type="number" id="compressionTimeout" name="compressionTimeout" 
+                 value="<%= config.compressionTimeout %>" min="1000" required>
+          <small>Temps maximum pour compresser un fichier (recommandé: 5000)</small>
+        </div>
+      </div>
+
+      <!-- Section Types de Fichiers -->
+      <div class="config-section">
+        <h3>Types de Fichiers</h3>
+        
+        <div class="form-group">
+          <label for="compressibleTypes">Types de fichiers à compresser</label>
+          <textarea id="compressibleTypes" name="compressibleTypes" placeholder=".txt, .js, .css, .html, .json, .xml, .md"><%= config.compressibleTypes.join(', ') %></textarea>
+          <small>Extensions séparées par des virgules (avec ou sans le point initial)</small>
+          <div class="current-values">
+            Actuellement: <%= config.compressibleTypes.join(', ') %>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="excludeTypes">Types de fichiers à exclure</label>
+          <textarea id="excludeTypes" name="excludeTypes" placeholder=".jpg, .png, .zip, .mp4, .mp3"><%= config.excludeTypes.join(', ') %></textarea>
+          <small>Extensions à ne jamais compresser (déjà compressées ou binaires)</small>
+          <div class="current-values">
+            Actuellement: <%= config.excludeTypes.join(', ') %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="form-group">
+        <button type="submit" class="btn">Sauvegarder la configuration</button>
+        <button type="button" class="btn btn-secondary" onclick="resetToDefaults()">Valeurs par défaut</button>
+        <button type="button" class="btn btn-secondary" onclick="reloadConfig()">Recharger depuis fichier</button>
+        <a href="/admin/compression-stats" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function resetToDefaults() {
+      if (confirm('Êtes-vous sûr de vouloir restaurer les valeurs par défaut ?')) {
+        document.getElementById('compressionLevel').value = 6;
+        document.getElementById('algorithm').value = 'gzip';
+        document.getElementById('minFileSize').value = 1024;
+        document.getElementById('maxFileSize').value = 104857600;
+        document.getElementById('compressionTimeout').value = 5000;
+        document.getElementById('compressibleTypes').value = '.txt, .js, .css, .html, .json, .xml, .md, .csv, .log, .sql, .php, .py, .rb, .java';
+        document.getElementById('excludeTypes').value = '.jpg, .jpeg, .png, .gif, .bmp, .webp, .zip, .rar, .7z, .gz, .bz2, .mp4, .avi, .mov, .mp3, .wav, .flac';
+      }
+    }
+    
+    async function reloadConfig() {
+      if (confirm('Recharger la configuration depuis le fichier ? Cela écrasera les modifications non sauvegardées.')) {
+        try {
+          const response = await fetch('/admin/compression-config/reload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Mettre à jour les champs du formulaire avec la configuration rechargée
+            const config = result.config;
+            document.getElementById('compressionLevel').value = config.compressionLevel;
+            document.getElementById('algorithm').value = config.algorithm;
+            document.getElementById('minFileSize').value = config.minFileSize;
+            document.getElementById('maxFileSize').value = config.maxFileSize;
+            document.getElementById('compressionTimeout').value = config.compressionTimeout;
+            document.getElementById('compressibleTypes').value = config.compressibleTypes.join(', ');
+            document.getElementById('excludeTypes').value = config.excludeTypes.join(', ');
+            
+            let message = 'Configuration rechargée avec succès';
+            if (result.warnings && result.warnings.length > 0) {
+              message += '\\nAvertissements: ' + result.warnings.join(', ');
+            }
+            alert(message);
+          } else {
+            alert('Erreur lors du rechargement: ' + result.error);
+          }
+        } catch (error) {
+          alert('Erreur de communication: ' + error.message);
+        }
+      }
+    }
+    
+    // Validation côté client
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const minSize = parseInt(document.getElementById('minFileSize').value);
+      const maxSize = parseInt(document.getElementById('maxFileSize').value);
+      
+      if (minSize >= maxSize) {
+        alert('La taille minimale doit être inférieure à la taille maximale');
+        e.preventDefault();
+        return false;
+      }
+      
+      const compressionLevel = parseInt(document.getElementById('compressionLevel').value);
+      if (compressionLevel < 1 || compressionLevel > 9) {
+        alert('Le niveau de compression doit être entre 1 et 9');
+        e.preventDefault();
+        return false;
+      }
+    });
+  </script>
+</body>
+</html>
