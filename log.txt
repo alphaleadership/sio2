@@ -1,0 +1,83 @@
+=== Test: Ignorer webkitRelativePath pour uploads individuels ===
+
+Base directory: D:\partage
+
+Test: Upload individuel avec webkitRelativePath problématique
+  req.body.path: "documents"
+  file.originalname: "rapport.pdf"
+  file.webkitRelativePath: documents/rapport.pdf
+  → Utilise webkitRelativePath (upload de dossier)
+  destFolder: D:\partage\documents
+  isFolderUpload: true
+  subPath: documents/rapport.pdf
+  destPath: D:\partage\documents\documents\rapport.pdf
+  expectedPath: D:\partage\documents\rapport.pdf
+  ✗ ERREUR: webkitRelativePath devrait être ignoré mais a été utilisé
+  Result: ✗ FAIL
+    Différence détectée:
+      Calculé:  "D:\partage\documents\documents\rapport.pdf"
+      Attendu:  "D:\partage\documents\rapport.pdf"
+  ⚠️  DUPLICATION DÉTECTÉE dans le chemin !
+    Segments: [D:, partage, documents, documents, rapport.pdf]
+
+Test: Upload individuel sans webkitRelativePath
+  req.body.path: "documents"
+  file.originalname: "rapport.pdf"
+  file.webkitRelativePath: undefined
+  → Ignore webkitRelativePath (upload individuel)
+  destFolder: D:\partage\documents
+  isFolderUpload: false
+  subPath: rapport.pdf
+  destPath: D:\partage\documents\rapport.pdf
+  expectedPath: D:\partage\documents\rapport.pdf
+  ✓ webkitRelativePath géré correctement
+  Result: ✓ PASS
+  ✓ Aucune duplication détectée
+
+Test: Upload de dossier avec webkitRelativePath légitime
+  req.body.path: "projects"
+  file.originalname: "index.html"
+  file.webkitRelativePath: mon-site/index.html
+  → Utilise webkitRelativePath (upload de dossier)
+  destFolder: D:\partage\projects
+  isFolderUpload: true
+  subPath: mon-site/index.html
+  destPath: D:\partage\projects\mon-site\index.html
+  expectedPath: D:\partage\projects\mon-site\index.html
+  ✓ webkitRelativePath géré correctement
+  Result: ✓ PASS
+  ✓ Aucune duplication détectée
+
+Test: Upload individuel à la racine avec webkitRelativePath
+  req.body.path: ""
+  file.originalname: "test.txt"
+  file.webkitRelativePath: test.txt
+  → Ignore webkitRelativePath (upload individuel)
+  destFolder: D:\partage
+  isFolderUpload: false
+  subPath: test.txt
+  destPath: D:\partage\test.txt
+  expectedPath: D:\partage\test.txt
+  ✗ ERREUR: webkitRelativePath devrait être ignoré mais a été utilisé
+  Result: ✓ PASS
+  ✓ Aucune duplication détectée
+
+=== Tests des cas edge ===
+
+Test edge: webkitRelativePath avec plusieurs niveaux pour upload individuel
+  webkitRelativePath: "uploads/subfolder/file.txt"
+  isFolderUpload: true
+  subPath utilisé: "uploads/subfolder/file.txt"
+  destPath: "D:\partage\uploads\uploads\subfolder\file.txt"
+  ⚠️  Duplications: [uploads]
+
+Test edge: webkitRelativePath identique au body.path
+  webkitRelativePath: "documents"
+  isFolderUpload: false
+  subPath utilisé: "test.pdf"
+  destPath: "D:\partage\documents\test.pdf"
+  ✓ Pas de duplication
+
+=== Résumé ===
+❌ Certains tests ont échoué.
+La logique doit être ajustée pour ignorer webkitRelativePath dans tous les cas d'upload individuel.
