@@ -1,53 +1,1782 @@
-Performance Monitoring Implementation - Test Fix Applied
-
-Issue: ReferenceError: beforeEach is not defined
-Location: test/upload/PerformanceMonitor.test.js
-
-Problem:
-- Test file was using Jest/Mocha syntax (beforeEach, afterEach, expect)
-- Node.js native test runner doesn't support these methods
-- Tests were failing with "beforeEach is not defined" error
-
-Solution Applied:
-1. Rewrote test file to use Node.js native test runner syntax:
-   - Replaced beforeEach/afterEach with helper functions
-   - Replaced expect() with assert module
-   - Used describe() and test() from 'node:test'
-
-2. Created simplified test suite with essential tests:
-   - PerformanceMonitor instance creation
-   - Path resolution performance tracking
-   - Optimized string operations
-   - Caching functionality
-   - Integration with UploadPathResolver
-   - Error handling
-   - Metrics reset functionality
-
-3. Created simple validation script (test-performance-simple.js):
-   - Comprehensive validation of all features
-   - User-friendly output with French messages
-   - Error handling and reporting
-
-Status: FIXED ✓
-
-Test Results:
-✓ All modules load correctly
-✓ Performance monitoring tracks operations
-✓ String operations work optimally
-✓ Caching system functions properly
-✓ Integration with UploadPathResolver works
-✓ Error handling is robust
-✓ Metrics collection and reset work correctly
-
-Key Features Validated:
-✓ Performance benchmarks for path resolution operations (Requirement 4.1)
-✓ Caching for repeated path analysis patterns (Requirement 4.2)
-✓ Optimized string operations for path manipulation (Requirement 4.2)
-✓ Real-time performance metrics and monitoring
-✓ Integration with existing UploadPathResolver
-✓ Comprehensive error handling
-✓ Performance compliance checking
-
-Task 8 Implementation: COMPLETED SUCCESSFULLY
-
-The performance monitoring system is now fully functional and tested with Node.js native test runner.
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:26.950Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_access.log',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'f87b3f515c4d5b35d37881d5a689c3a1',
+      path: '/home/labo/temp/tmp_uploads/f87b3f515c4d5b35d37881d5a689c3a1',
+      size: 30444
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_access.log'
+  }
+}
+Path resolution warnings for fallback_access.log: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:26.954Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_access.log.1.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'de272c45672b46ff27a1fcd6e063acac',
+      path: '/home/labo/temp/tmp_uploads/de272c45672b46ff27a1fcd6e063acac',
+      size: 5029
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_access.log.1.gz'
+  }
+}
+Path resolution warnings for fallback_access.log.1.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:26.965Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_access.log.2.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '7d6b32be7a7e14e51f8927afccdb8216',
+      path: '/home/labo/temp/tmp_uploads/7d6b32be7a7e14e51f8927afccdb8216',
+      size: 7492
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_access.log.2.gz'
+  }
+}
+Path resolution warnings for fallback_access.log.2.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:26.979Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_access.log.3.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '612498cd0adb0854b0aeb540731f6517',
+      path: '/home/labo/temp/tmp_uploads/612498cd0adb0854b0aeb540731f6517',
+      size: 5403
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_access.log.3.gz'
+  }
+}
+Path resolution warnings for fallback_access.log.3.gz: [ 'Path construction failed, using basename fallback' ]
+[36m[2025-09-18T14:44:26.990Z] INFO COMPRESSION_SUCCESS[0m {
+  timestamp: '2025-09-18T14:44:26.990Z',
+  level: 'INFO',
+  type: 'COMPRESSION_SUCCESS',
+  operation: {
+    inputPath: '/home/labo/temp/partage/users/test/users/test/fallback_access.log.tmp',
+    outputPath: '/home/labo/temp/partage/users/test/users/test/fallback_access.log.gz',
+    originalSize: 30444,
+    compressedSize: 4037,
+    compressionRatio: 0.1326041256076731,
+    algorithm: 'gzip',
+    duration: 36,
+    spaceSaved: 26407
+  }
+}
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:26.991Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_access.log.4.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'c0bec8db2635121eb530de8e42806e48',
+      path: '/home/labo/temp/tmp_uploads/c0bec8db2635121eb530de8e42806e48',
+      size: 6405
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_access.log.4.gz'
+  }
+}
+Path resolution warnings for fallback_access.log.4.gz: [ 'Path construction failed, using basename fallback' ]
+Compression completed: compress_1758206666954_3reqcxfzj in 42ms
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:26.998Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_error.log',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'a6f5608b8000c93e606fafe4627a7f5a',
+      path: '/home/labo/temp/tmp_uploads/a6f5608b8000c93e606fafe4627a7f5a',
+      size: 5377
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_error.log'
+  }
+}
+Path resolution warnings for fallback_error.log: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.002Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_error.log.1.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '1d6c94660f8865a407f51263c3fd99a9',
+      path: '/home/labo/temp/tmp_uploads/1d6c94660f8865a407f51263c3fd99a9',
+      size: 1176
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_error.log.1.gz'
+  }
+}
+Path resolution warnings for fallback_error.log.1.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.008Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_error.log.2.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'a6a2fd6a156883eba61700f46b6e999f',
+      path: '/home/labo/temp/tmp_uploads/a6a2fd6a156883eba61700f46b6e999f',
+      size: 2407
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_error.log.2.gz'
+  }
+}
+Path resolution warnings for fallback_error.log.2.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.015Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_error.log.3.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'a6cdda7d6bd1d4dbb1268bc0e463ad50',
+      path: '/home/labo/temp/tmp_uploads/a6cdda7d6bd1d4dbb1268bc0e463ad50',
+      size: 1522
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_error.log.3.gz'
+  }
+}
+Path resolution warnings for fallback_error.log.3.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.019Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_error.log.4.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'fce0b3d68ea53653bad0d59fda7c59da',
+      path: '/home/labo/temp/tmp_uploads/fce0b3d68ea53653bad0d59fda7c59da',
+      size: 1786
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_error.log.4.gz'
+  }
+}
+Path resolution warnings for fallback_error.log.4.gz: [ 'Path construction failed, using basename fallback' ]
+[36m[2025-09-18T14:44:27.021Z] INFO COMPRESSION_SUCCESS[0m {
+  timestamp: '2025-09-18T14:44:27.021Z',
+  level: 'INFO',
+  type: 'COMPRESSION_SUCCESS',
+  operation: {
+    inputPath: '/home/labo/temp/partage/users/test/users/test/fallback_error.log.tmp',
+    outputPath: '/home/labo/temp/partage/users/test/users/test/fallback_error.log.gz',
+    originalSize: 5377,
+    compressedSize: 1098,
+    compressionRatio: 0.20420308722335875,
+    algorithm: 'gzip',
+    duration: 19,
+    spaceSaved: 4279
+  }
+}
+Compression completed: compress_1758206667002_vnnee25h6 in 23ms
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.026Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_error.log.5.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '1be4c445d04a743a9b6bbbdecb926787',
+      path: '/home/labo/temp/tmp_uploads/1be4c445d04a743a9b6bbbdecb926787',
+      size: 1055
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_error.log.5.gz'
+  }
+}
+Path resolution warnings for fallback_error.log.5.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.029Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_error.log.6.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'eb30c4778df3845a099c636a94a3f8aa',
+      path: '/home/labo/temp/tmp_uploads/eb30c4778df3845a099c636a94a3f8aa',
+      size: 2363
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_error.log.6.gz'
+  }
+}
+Path resolution warnings for fallback_error.log.6.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.035Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_error.log.7.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'd062b20546e0e2095cf8198c9598f6e9',
+      path: '/home/labo/temp/tmp_uploads/d062b20546e0e2095cf8198c9598f6e9',
+      size: 328
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_error.log.7.gz'
+  }
+}
+Path resolution warnings for fallback_error.log.7.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.045Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_access.log',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '338a9c4450269b837768364561ae7881',
+      path: '/home/labo/temp/tmp_uploads/338a9c4450269b837768364561ae7881',
+      size: 1519388
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_access.log'
+  }
+}
+Path resolution warnings for proxy-host-1_access.log: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.050Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_access.log.1.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '0d8e6f6bd8ea3b6b598962b407c89abe',
+      path: '/home/labo/temp/tmp_uploads/0d8e6f6bd8ea3b6b598962b407c89abe',
+      size: 116485
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_access.log.1.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_access.log.1.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.058Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_access.log.2.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '98d1fa99597f90203eeda59089f71394',
+      path: '/home/labo/temp/tmp_uploads/98d1fa99597f90203eeda59089f71394',
+      size: 158376
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_access.log.2.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_access.log.2.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.073Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_access.log.3.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '09881c4c5222ba93d29912e9f6ab70b3',
+      path: '/home/labo/temp/tmp_uploads/09881c4c5222ba93d29912e9f6ab70b3',
+      size: 110839
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_access.log.3.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_access.log.3.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.079Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_access.log.4.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'e05414fce6b8819c047600ed87a45658',
+      path: '/home/labo/temp/tmp_uploads/e05414fce6b8819c047600ed87a45658',
+      size: 149935
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_access.log.4.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_access.log.4.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.082Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_error.log',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '7e35bff33359a33a5b0d426e47d045d4',
+      path: '/home/labo/temp/tmp_uploads/7e35bff33359a33a5b0d426e47d045d4',
+      size: 25665
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_error.log'
+  }
+}
+Path resolution warnings for proxy-host-1_error.log: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.089Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_error.log.1.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'bb2dfedef8069e0a5309cae8bc3d7c42',
+      path: '/home/labo/temp/tmp_uploads/bb2dfedef8069e0a5309cae8bc3d7c42',
+      size: 3301
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_error.log.1.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_error.log.1.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.097Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_error.log.2.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '7ac62ba5be0d8cb23493290b2c89c646',
+      path: '/home/labo/temp/tmp_uploads/7ac62ba5be0d8cb23493290b2c89c646',
+      size: 4305
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_error.log.2.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_error.log.2.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.099Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_error.log.3.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '35968688a101d15969740d6c34c6d006',
+      path: '/home/labo/temp/tmp_uploads/35968688a101d15969740d6c34c6d006',
+      size: 3058
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_error.log.3.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_error.log.3.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.106Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_error.log.4.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '1870a0ed54672145c95862d54e5aa5cf',
+      path: '/home/labo/temp/tmp_uploads/1870a0ed54672145c95862d54e5aa5cf',
+      size: 4759
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_error.log.4.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_error.log.4.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.113Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_error.log.5.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '8ebb1f4f16a845299a3e0e556784871e',
+      path: '/home/labo/temp/tmp_uploads/8ebb1f4f16a845299a3e0e556784871e',
+      size: 4696
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_error.log.5.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_error.log.5.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.119Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_error.log.6.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '27d0b0180e0d66960d2c4f09c6255ae3',
+      path: '/home/labo/temp/tmp_uploads/27d0b0180e0d66960d2c4f09c6255ae3',
+      size: 4066
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_error.log.6.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_error.log.6.gz: [ 'Path construction failed, using basename fallback' ]
+[36m[2025-09-18T14:44:27.125Z] INFO COMPRESSION_SUCCESS[0m {
+  timestamp: '2025-09-18T14:44:27.125Z',
+  level: 'INFO',
+  type: 'COMPRESSION_SUCCESS',
+  operation: {
+    inputPath: '/home/labo/temp/partage/users/test/users/test/proxy-host-1_error.log.tmp',
+    outputPath: '/home/labo/temp/partage/users/test/users/test/proxy-host-1_error.log.gz',
+    originalSize: 25665,
+    compressedSize: 3015,
+    compressionRatio: 0.11747516072472239,
+    algorithm: 'gzip',
+    duration: 36,
+    spaceSaved: 22650
+  }
+}
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.130Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-1_error.log.7.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'f17c5f65ee0c330915ca7ebdb2d9ee9f',
+      path: '/home/labo/temp/tmp_uploads/f17c5f65ee0c330915ca7ebdb2d9ee9f',
+      size: 848
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-1_error.log.7.gz'
+  }
+}
+Path resolution warnings for proxy-host-1_error.log.7.gz: [ 'Path construction failed, using basename fallback' ]
+Compression completed: compress_1758206667089_miqn5bo3m in 41ms
+[36m[2025-09-18T14:44:27.133Z] INFO COMPRESSION_SUCCESS[0m {
+  timestamp: '2025-09-18T14:44:27.133Z',
+  level: 'INFO',
+  type: 'COMPRESSION_SUCCESS',
+  operation: {
+    inputPath: '/home/labo/temp/partage/users/test/users/test/proxy-host-1_access.log.tmp',
+    outputPath: '/home/labo/temp/partage/users/test/users/test/proxy-host-1_access.log.gz',
+    originalSize: 1519388,
+    compressedSize: 84008,
+    compressionRatio: 0.055290682827559515,
+    algorithm: 'gzip',
+    duration: 84,
+    spaceSaved: 1435380
+  }
+}
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.136Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-2_access.log',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '877324a72d88490284a298533c250888',
+      path: '/home/labo/temp/tmp_uploads/877324a72d88490284a298533c250888',
+      size: 0
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-2_access.log'
+  }
+}
+Path resolution warnings for proxy-host-2_access.log: [ 'Path construction failed, using basename fallback' ]
+Compression completed: compress_1758206667049_z8xjya6fu in 91ms
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.141Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-2_access.log.1.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'e6f4b1d62447259d7b785d5567feb4ae',
+      path: '/home/labo/temp/tmp_uploads/e6f4b1d62447259d7b785d5567feb4ae',
+      size: 216
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-2_access.log.1.gz'
+  }
+}
+Path resolution warnings for proxy-host-2_access.log.1.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.147Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-2_access.log.2.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'a6bff8aa68066ffcc31400cbad7a515d',
+      path: '/home/labo/temp/tmp_uploads/a6bff8aa68066ffcc31400cbad7a515d',
+      size: 334
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-2_access.log.2.gz'
+  }
+}
+Path resolution warnings for proxy-host-2_access.log.2.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.152Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-2_access.log.3.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '005405d552e81e13bd37f3de1e52e6df',
+      path: '/home/labo/temp/tmp_uploads/005405d552e81e13bd37f3de1e52e6df',
+      size: 2215
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-2_access.log.3.gz'
+  }
+}
+Path resolution warnings for proxy-host-2_access.log.3.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.154Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-2_error.log',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '2a429703adf29d2ad0304fef9ccf5243',
+      path: '/home/labo/temp/tmp_uploads/2a429703adf29d2ad0304fef9ccf5243',
+      size: 0
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-2_error.log'
+  }
+}
+Path resolution warnings for proxy-host-2_error.log: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.159Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_access.log',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '73ffba267277925ed1f838ecb3d756a9',
+      path: '/home/labo/temp/tmp_uploads/73ffba267277925ed1f838ecb3d756a9',
+      size: 1528442
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_access.log'
+  }
+}
+Path resolution warnings for proxy-host-3_access.log: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.164Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_access.log.1.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'e994f5d1ba19a404dae0ee2107512560',
+      path: '/home/labo/temp/tmp_uploads/e994f5d1ba19a404dae0ee2107512560',
+      size: 110458
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_access.log.1.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_access.log.1.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.168Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_access.log.2.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '01d07d50c8c6ace605fdc66cd1d9178c',
+      path: '/home/labo/temp/tmp_uploads/01d07d50c8c6ace605fdc66cd1d9178c',
+      size: 141614
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_access.log.2.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_access.log.2.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.174Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_access.log.3.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '5ead8609d1cffe1fcbe863afdb333fd4',
+      path: '/home/labo/temp/tmp_uploads/5ead8609d1cffe1fcbe863afdb333fd4',
+      size: 101281
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_access.log.3.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_access.log.3.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.182Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_access.log.4.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'ee41fe30983d31cb102644b964bdae16',
+      path: '/home/labo/temp/tmp_uploads/ee41fe30983d31cb102644b964bdae16',
+      size: 139613
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_access.log.4.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_access.log.4.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.199Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_error.log',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '7ec3793486afbc80ccb5541a5b33d907',
+      path: '/home/labo/temp/tmp_uploads/7ec3793486afbc80ccb5541a5b33d907',
+      size: 0
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_error.log'
+  }
+}
+Path resolution warnings for proxy-host-3_error.log: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.203Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_error.log.1.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: 'acca86ae03269eb6f10a41f696e5d5c4',
+      path: '/home/labo/temp/tmp_uploads/acca86ae03269eb6f10a41f696e5d5c4',
+      size: 476
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_error.log.1.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_error.log.1.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.208Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_error.log.2.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '429e0219f0ae01489d1dc7e5f61953cd',
+      path: '/home/labo/temp/tmp_uploads/429e0219f0ae01489d1dc7e5f61953cd',
+      size: 414
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_error.log.2.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_error.log.2.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.219Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_error.log.3.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '428e9ce677ce1394979c772e86ae3cfb',
+      path: '/home/labo/temp/tmp_uploads/428e9ce677ce1394979c772e86ae3cfb',
+      size: 419
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_error.log.3.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_error.log.3.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.223Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_error.log.4.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '4930cfbb7555439db724914156c87243',
+      path: '/home/labo/temp/tmp_uploads/4930cfbb7555439db724914156c87243',
+      size: 436
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_error.log.4.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_error.log.4.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.228Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_error.log.5.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '93cdfa6c7e82fa6cd6a85c48f99b80d3',
+      path: '/home/labo/temp/tmp_uploads/93cdfa6c7e82fa6cd6a85c48f99b80d3',
+      size: 391
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_error.log.5.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_error.log.5.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.229Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_error.log.6.gz',
+      encoding: '7bit',
+      mimetype: 'application/gzip',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '9ad98a7e6c583fe554c107975cbe3600',
+      path: '/home/labo/temp/tmp_uploads/9ad98a7e6c583fe554c107975cbe3600',
+      size: 926
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_error.log.6.gz'
+  }
+}
+Path resolution warnings for proxy-host-3_error.log.6.gz: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.237Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'proxy-host-3_error.log',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '72e383bda596d378c0fe0da75d72ad7e',
+      path: '/home/labo/temp/tmp_uploads/72e383bda596d378c0fe0da75d72ad7e',
+      size: 2242
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/proxy-host-3_error.log'
+  }
+}
+Path resolution warnings for proxy-host-3_error.log: [ 'Path construction failed, using basename fallback' ]
+[MEDIUM ERROR] Path construction error {
+  message: 'Path construction error',
+  category: 'path_construction',
+  severity: 'medium',
+  error: 'Webkit path construction failed: webkitRelativePath is missing, cannot use webkit strategy',
+  timestamp: '2025-09-18T14:44:27.245Z',
+  context: {
+    file: {
+      fieldname: 'file',
+      originalname: 'fallback_access.log.1',
+      encoding: '7bit',
+      mimetype: 'application/octet-stream',
+      destination: '/home/labo/temp/tmp_uploads',
+      filename: '59517ede5357549146ecaa8e8fc6fc25',
+      path: '/home/labo/temp/tmp_uploads/59517ede5357549146ecaa8e8fc6fc25',
+      size: 43355
+    },
+    destFolder: '/home/labo/temp/partage/users/test/users/test',
+    allFiles: [
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object], [Object], [Object], [Object],
+      [Object]
+    ],
+    step: 'result_creation',
+    finalPath: 'home/labo/temp/partage/users/test/fallback_access.log.1'
+  }
+}
+Path resolution warnings for fallback_access.log.1: [ 'Path construction failed, using basename fallback' ]
+Successfully compressed 6/45 files
+[36m[2025-09-18T14:44:27.264Z] INFO COMPRESSION_SUCCESS[0m {
+  timestamp: '2025-09-18T14:44:27.264Z',
+  level: 'INFO',
+  type: 'COMPRESSION_SUCCESS',
+  operation: {
+    inputPath: '/home/labo/temp/partage/users/test/users/test/proxy-host-3_access.log.tmp',
+    outputPath: '/home/labo/temp/partage/users/test/users/test/proxy-host-3_access.log.gz',
+    originalSize: 1528442,
+    compressedSize: 77365,
+    compressionRatio: 0.05061690270222881,
+    algorithm: 'gzip',
+    duration: 100,
+    spaceSaved: 1451077
+  }
+}
+Compression completed: compress_1758206667164_4zrfuvpkd in 107ms
+[36m[2025-09-18T14:44:27.274Z] INFO COMPRESSION_SUCCESS[0m {
+  timestamp: '2025-09-18T14:44:27.274Z',
+  level: 'INFO',
+  type: 'COMPRESSION_SUCCESS',
+  operation: {
+    inputPath: '/home/labo/temp/partage/users/test/users/test/proxy-host-3_error.log.tmp',
+    outputPath: '/home/labo/temp/partage/users/test/users/test/proxy-host-3_error.log.gz',
+    originalSize: 2242,
+    compressedSize: 476,
+    compressionRatio: 0.21231043710972347,
+    algorithm: 'gzip',
+    duration: 33,
+    spaceSaved: 1766
+  }
+}
+Compression completed: compress_1758206667241_ar2um1alg in 37ms
+[0mPOST /upload [36m302 [0m1374.835 ms - 154[0m
+users/test
+/home/labo/temp/partage/users/test
+/home/labo/temp/partage/users/test
+users/test
+[
+  {
+    name: 'users/test/users',
+    fullPath: '/home/labo/temp/partage/users/test/users',
+    relativePath: 'users/test/users',
+    isDirectory: true,
+    isFile: false,
+    size: 4096,
+    mtime: 2025-09-18T13:05:48.203Z,
+    ctime: 2025-09-18T13:05:48.203Z,
+    atime: 2025-09-18T13:05:48.203Z,
+    mode: 16877
+  }
+]
+[0mGET /?path=%2Fusers%2Ftest [36m304 [0m9.943 ms - -[0m
