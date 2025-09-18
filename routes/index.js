@@ -4,34 +4,95 @@ var express = require('express');
 var router = express.Router();
 const path = require("path");
 const fs = require("fs");
-  const baseDir = path.resolve("../partage");
-  const multer = require('multer');
-const upload = multer({ dest: path.join(baseDir, '..','tmp_uploads') }); // dossier temporaire pour upload
- // dossier temporaire pour upload
+const baseDir = path.resolve("../partage");
+const multer = require('multer');
+const upload = multer({ dest: path.join(baseDir, '..', 'tmp_uploads') }); // dossier temporaire pour upload
+// dossier temporaire pour upload
 // Initialisation du système de compression
 const CompressionService = require('../lib/compression/CompressionService');
 const CompressionConfig = require('../lib/compression/CompressionConfig');
+const CompressionStats = require('../lib/compression/CompressionStats');
 const FileStorageMiddleware = require('../lib/compression/FileStorageMiddleware');
 
 // Créer les instances des services de compression
 // Utiliser la configuration globale si disponible, sinon créer une instance par défaut
 const compressionConfig = global.compressionConfig || new CompressionConfig();
 const compressionService = new CompressionService();
-const fileStorageMiddleware = new FileStorageMiddleware(compressionService, compressionConfig);
 
-router.post('/upload', upload.array('file'), fileStorageMiddleware.createUploadMiddleware(), function(req, res, next) {
+// Initialiser le système de statistiques
+let compressionStats = new CompressionStats(); // Instance par défaut immédiate
+
+async function initializeCompressionStats() {
+  try {
+    const statsPath = path.join(__dirname, '..', 'temp', 'compression-stats.json');
+    const loadedStats = await CompressionStats.loadFromFile(statsPath);
+
+    // Remplacer l'instance par défaut par les statistiques chargées
+    compressionStats = loadedStats;
+
+    // Mettre à jour la référence dans le middleware
+    if (fileStorageMiddleware) {
+      fileStorageMiddleware.stats = compressionStats;
+    }
+
+    console.log('Statistiques de compression chargées:', {
+      totalFilesProcessed: compressionStats.stats.totalFilesProcessed,
+      totalFilesCompressed: compressionStats.stats.totalFilesCompressed,
+      totalSpaceSaved: compressionStats.getFormattedSpaceSaved()
+    });
+  } catch (error) {
+    console.error('Erreur lors du chargement des statistiques:', error.message);
+    // Garder l'instance par défaut
+  }
+}
+
+// Initialiser les statistiques de manière asynchrone
+initializeCompressionStats().catch(console.error);
+
+// Fonction pour sauvegarder les statistiques
+async function saveCompressionStats() {
+  if (compressionStats) {
+    try {
+      const statsPath = path.join(__dirname, '..', 'temp', 'compression-stats.json');
+      await compressionStats.saveToFile(statsPath);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde des statistiques:', error.message);
+    }
+  }
+}
+
+// Sauvegarder les statistiques toutes les 5 minutes
+setInterval(saveCompressionStats, 5 * 60 * 1000);
+
+// Sauvegarder les statistiques lors de l'arrêt de l'application
+process.on('SIGINT', async () => {
+  console.log('Sauvegarde des statistiques avant fermeture...');
+  await saveCompressionStats();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('Sauvegarde des statistiques avant fermeture...');
+  await saveCompressionStats();
+  process.exit(0);
+});
+
+// Créer le middleware avec les statistiques (sera mis à jour quand les stats seront chargées)
+const fileStorageMiddleware = new FileStorageMiddleware(compressionService, compressionConfig, compressionStats);
+
+router.post('/upload', upload.array('file'), fileStorageMiddleware.createUploadMiddleware(), function (req, res, next) {
   // Le middleware de compression a déjà traité les fichiers
   // Les résultats sont disponibles dans req.compressionResults
-  
+
   if (req.compressionResults) {
     const hasErrors = req.compressionResults.some(result => result.error);
     if (hasErrors) {
       console.warn('Some files had compression errors:', req.compressionResults.filter(r => r.error));
     }
-    
+
     const compressedCount = req.compressionResults.filter(r => r.compressed).length;
     const totalCount = req.compressionResults.length;
-    
+
     if (compressedCount > 0) {
       console.log(`Successfully compressed ${compressedCount}/${totalCount} files`);
     }
@@ -49,7 +110,7 @@ router.post('/upload', upload.array('file'), fileStorageMiddleware.createUploadM
       console.warn('Folder validation warnings:', req.folderValidation.warnings);
     }
   }
-  
+
   res.redirect(req.get('referer') || '/');
 });
 /* GET home page. */
@@ -58,7 +119,7 @@ router.post('/upload', upload.array('file'), fileStorageMiddleware.createUploadM
 const globalShareDir = path.join(baseDir, 'global');
 if (!fs.existsSync(globalShareDir)) fs.mkdirSync(globalShareDir, { recursive: true });
 
-router.get('/', userAuth(), function(req, res, next) {
+router.get('/', userAuth(), function (req, res, next) {
   let rootChoices = [];
   let userDir = baseDir;
   let relBase = '';
@@ -83,7 +144,7 @@ router.get('/', userAuth(), function(req, res, next) {
     }
     // Navigation dans le partage global
     if (req.query.path && req.query.path.startsWith('/global')) {
-      const subPath = req.query.path.replace(/^\/+/, '').replace("/global","");
+      const subPath = req.query.path.replace(/^\/+/, '').replace("/global", "");
       const reqPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
       if (!reqPath.startsWith(globalShareDir)) return res.status(400).send('Chemin invalide.');
       return renderFiles(req, res, reqPath, baseDir, '');
@@ -104,15 +165,15 @@ router.get('/', userAuth(), function(req, res, next) {
 function renderFiles(req, res, reqPath, userDir, relBase) {
   async function getFilesInDir(dirPath, relPath = "") {
     console.log(dirPath)
-    console.log(relPath)   
-    const files = fs.readdirSync(dirPath.replace("global/global","global"), { withFileTypes: true });
+    console.log(relPath)
+    const files = fs.readdirSync(dirPath.replace("global/global", "global"), { withFileTypes: true });
     const processedFiles = [];
     const seenFiles = new Set(); // Pour éviter les doublons
 
     for (const file of files) {
-      const fullPath = path.join(dirPath.replace("global/global","global"), file.name);
-      const relativePath = path.join(relPath.replace("global/global","global"), file.name);
-      
+      const fullPath = path.join(dirPath.replace("global/global", "global"), file.name);
+      const relativePath = path.join(relPath.replace("global/global", "global"), file.name);
+
       // Ignorer les fichiers .meta (métadonnées de compression)
       if (file.name.endsWith('.meta')) {
         continue;
@@ -141,7 +202,7 @@ function renderFiles(req, res, reqPath, userDir, relBase) {
         const originalName = file.name.slice(0, -3); // Enlever l'extension .gz
         const originalPath = path.join(path.dirname(fullPath), originalName);
         const originalRelativePath = path.join(path.dirname(relativePath), originalName);
-        
+
         // Éviter les doublons si le fichier original existe aussi
         if (seenFiles.has(originalName)) {
           continue;
@@ -153,9 +214,9 @@ function renderFiles(req, res, reqPath, userDir, relBase) {
           const FileMetadataManager = require('../lib/compression/FileMetadataManager');
           const metadataManager = new FileMetadataManager();
           const metadata = await metadataManager.loadMetadata(originalPath);
-          
+
           const stats = fs.statSync(fullPath);
-          
+
           processedFiles.push({
             name: originalRelativePath.replace(/\\/g, '/'),
             fullPath: originalPath, // Utiliser le chemin original pour les liens
@@ -191,16 +252,16 @@ function renderFiles(req, res, reqPath, userDir, relBase) {
 
       // Fichier normal (non compressé)
       const originalName = file.name;
-      
+
       // Vérifier s'il existe une version compressée
       const compressedPath = fullPath + '.gz';
       const hasCompressedVersion = fs.existsSync(compressedPath);
-      
+
       // Si une version compressée existe, ignorer le fichier original
       if (hasCompressedVersion) {
         continue;
       }
-      
+
       // Éviter les doublons
       if (seenFiles.has(originalName)) {
         continue;
@@ -261,7 +322,7 @@ function loadUsers() {
 loadUsers();
 
 function userAuth(role = null) {
-  return function(req, res, next) {
+  return function (req, res, next) {
     if (req.session && req.session.user) {
       if (!role || req.session.user.role === role) return next();
       return res.status(403).send('Accès interdit.');
@@ -279,9 +340,9 @@ function userAuth(role = null) {
       if (req.session) req.session.user = { username: user.username, role: user.role };
       // Crée le dossier perso si non existant
       //if (user.role === 'user') {
-        const userDir = path.join(baseDir, 'users', user.username);
-        if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
-      
+      const userDir = path.join(baseDir, 'users', user.username);
+      if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
+
       return next();
     }
     if (req.accepts('html')) return res.redirect('/');
@@ -294,16 +355,16 @@ function userAuth(role = null) {
 const adminAuth = userAuth('admin');
 
 // Vue de login générique
-router.get('/login', function(req, res) {
+router.get('/login', function (req, res) {
   res.render('login');
 });
 // Route pour afficher le formulaire d'inscription
-router.get('/register', function(req, res) {
+router.get('/register', function (req, res) {
   res.render('register');
 });
 
 // Route pour traiter l'inscription
-router.post('/register', express.urlencoded({ extended: true }), function(req, res) {
+router.post('/register', express.urlencoded({ extended: true }), function (req, res) {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).send('Nom d\'utilisateur et mot de passe requis');
@@ -312,17 +373,17 @@ router.post('/register', express.urlencoded({ extended: true }), function(req, r
   let users = [];
   try {
     users = JSON.parse(fs.readFileSync(path.join(__dirname, '../users.json')));
-  } catch (e) {}
+  } catch (e) { }
   if (users.find(u => u.username === username)) {
     return res.status(400).send('Nom d\'utilisateur déjà utilisé');
   }
-  users.push({ username:username, password:password,role:'user' });
+  users.push({ username: username, password: password, role: 'user' });
   fs.writeFileSync(path.join(__dirname, '../users.json'), JSON.stringify(users, null, 2));
   res.redirect('/login');
 });
 
 // --- Route admin : liste des fichiers dans la corbeille ---
-router.get('/admin/trash', adminAuth, function(req, res) {
+router.get('/admin/trash', adminAuth, function (req, res) {
   try {
     const files = fs.readdirSync(trashDir)
       .filter(f => fs.statSync(path.join(trashDir, f)).isFile())
@@ -338,7 +399,7 @@ router.get('/admin/trash', adminAuth, function(req, res) {
 });
 
 // --- Route admin : restauration d'un fichier de la corbeille ---
-router.post('/admin/restore', adminAuth, function(req, res) {
+router.post('/admin/restore', adminAuth, function (req, res) {
   const trashFile = req.body.file;
   if (!trashFile) return res.status(400).send('Fichier non spécifié.');
   const absTrashFile = path.join(trashDir, trashFile);
@@ -359,7 +420,7 @@ router.post('/admin/restore', adminAuth, function(req, res) {
 });
 
 // Route pour supprimer (déplacer) un fichier dans la corbeille
-router.post('/delete', function(req, res, next) {
+router.post('/delete', function (req, res, next) {
   const relFile = req.body.file;
   if (!relFile) return res.status(400).send('Fichier non spécifié.');
   const absFile = path.join(baseDir, relFile);
@@ -376,10 +437,10 @@ router.post('/delete', function(req, res, next) {
   });
 });
 // Route de téléchargement de fichier avec décompression automatique
-router.get('/download', fileStorageMiddleware.createDownloadMiddleware(), function(req, res, next) {
+router.get('/download', fileStorageMiddleware.createDownloadMiddleware(), function (req, res, next) {
   const reqFile = req.query.file ? path.join(baseDir, req.query.file) : null;
   console.log(reqFile);
-  
+
   // Vérifie que le chemin est valide et dans le dossier de base
   if (!reqFile || !reqFile.startsWith(baseDir)) {
     return res.status(400).send("Chemin invalide.");
@@ -431,14 +492,14 @@ router.get('/admin/compression-stats', adminAuth, async (req, res) => {
   try {
     const CompressionStats = require('../lib/compression/CompressionStats');
     const statsPath = path.join(__dirname, '..', 'temp', 'compression-stats.json');
-    
+
     // Charger les statistiques depuis le fichier
     const compressionStats = await CompressionStats.loadFromFile(statsPath);
-    
+
     // Générer le rapport complet
     const report = compressionStats.generateReport();
-    
-    res.render('compression-stats', { 
+
+    res.render('compression-stats', {
       title: 'Statistiques de Compression',
       report: report,
       globalStats: report.summary,
@@ -447,7 +508,7 @@ router.get('/admin/compression-stats', adminAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur lors du chargement des statistiques de compression:', error);
-    res.status(500).render('error', { 
+    res.status(500).render('error', {
       message: 'Erreur lors du chargement des statistiques de compression',
       error: { status: 500, stack: error.stack }
     });
@@ -458,11 +519,11 @@ router.get('/admin/compression-stats', adminAuth, async (req, res) => {
 router.get('/admin/compression-config', adminAuth, async (req, res) => {
   try {
     const configPath = path.join(__dirname, '..', 'temp', 'compression-config.json');
-    
+
     // Charger la configuration actuelle
     const config = await CompressionConfig.loadFromFile(configPath);
-    
-    res.render('compression-config', { 
+
+    res.render('compression-config', {
       title: 'Configuration de Compression',
       config: config.toJSON(),
       message: req.query.message || null,
@@ -470,7 +531,7 @@ router.get('/admin/compression-config', adminAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur lors du chargement de la configuration de compression:', error);
-    res.status(500).render('error', { 
+    res.status(500).render('error', {
       message: 'Erreur lors du chargement de la configuration de compression',
       error: { status: 500, stack: error.stack }
     });
@@ -481,10 +542,10 @@ router.get('/admin/compression-config', adminAuth, async (req, res) => {
 router.post('/admin/compression-config', adminAuth, express.urlencoded({ extended: true }), async (req, res) => {
   try {
     const configPath = path.join(__dirname, '..', 'temp', 'compression-config.json');
-    
+
     // Charger la configuration actuelle
     let config = await CompressionConfig.loadFromFile(configPath);
-    
+
     // Préparer les nouvelles données de configuration
     const newConfigData = {
       compressionLevel: parseInt(req.body.compressionLevel) || config.compressionLevel,
@@ -493,7 +554,7 @@ router.post('/admin/compression-config', adminAuth, express.urlencoded({ extende
       compressionTimeout: parseInt(req.body.compressionTimeout) || config.compressionTimeout,
       algorithm: req.body.algorithm || config.algorithm
     };
-    
+
     // Traiter les types de fichiers compressibles
     if (req.body.compressibleTypes) {
       const types = req.body.compressibleTypes
@@ -503,7 +564,7 @@ router.post('/admin/compression-config', adminAuth, express.urlencoded({ extende
         .map(type => type.startsWith('.') ? type : '.' + type);
       newConfigData.compressibleTypes = types;
     }
-    
+
     // Traiter les types de fichiers exclus
     if (req.body.excludeTypes) {
       const types = req.body.excludeTypes
@@ -513,31 +574,31 @@ router.post('/admin/compression-config', adminAuth, express.urlencoded({ extende
         .map(type => type.startsWith('.') ? type : '.' + type);
       newConfigData.excludeTypes = types;
     }
-    
+
     // Mettre à jour la configuration
     config.update(newConfigData);
-    
+
     // Valider la nouvelle configuration
     const validation = config.validate();
     if (!validation.isValid) {
       return res.redirect(`/admin/compression-config?message=${encodeURIComponent('Erreurs de validation: ' + validation.errors.join(', '))}&type=error`);
     }
-    
+
     // Sauvegarder la configuration
     await config.saveToFile(configPath);
-    
+
     // Recharger la configuration dans l'application
     if (global.compressionConfig) {
       global.compressionConfig.update(newConfigData);
     }
-    
+
     let message = 'Configuration sauvegardée avec succès';
     if (validation.warnings.length > 0) {
       message += '. Avertissements: ' + validation.warnings.join(', ');
     }
-    
+
     res.redirect(`/admin/compression-config?message=${encodeURIComponent(message)}&type=success`);
-    
+
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de la configuration:', error);
     res.redirect(`/admin/compression-config?message=${encodeURIComponent('Erreur lors de la sauvegarde: ' + error.message)}&type=error`);
@@ -548,10 +609,10 @@ router.post('/admin/compression-config', adminAuth, express.urlencoded({ extende
 router.post('/admin/compression-config/reload', adminAuth, async (req, res) => {
   try {
     const configPath = path.join(__dirname, '..', 'temp', 'compression-config.json');
-    
+
     // Recharger la configuration depuis le fichier
     const newConfig = await CompressionConfig.loadFromFile(configPath);
-    
+
     // Valider la nouvelle configuration
     const validation = newConfig.validate();
     if (!validation.isValid) {
@@ -560,24 +621,24 @@ router.post('/admin/compression-config/reload', adminAuth, async (req, res) => {
         error: 'Configuration invalide: ' + validation.errors.join(', ')
       });
     }
-    
+
     // Mettre à jour la configuration globale
     global.compressionConfig = newConfig;
-    
+
     console.log('Configuration de compression rechargée à chaud:', {
       level: newConfig.compressionLevel,
       algorithm: newConfig.algorithm,
       minSize: newConfig.minFileSize,
       maxSize: newConfig.maxFileSize
     });
-    
+
     res.json({
       success: true,
       message: 'Configuration rechargée avec succès',
       config: newConfig.toJSON(),
       warnings: validation.warnings
     });
-    
+
   } catch (error) {
     console.error('Erreur lors du rechargement de la configuration:', error);
     res.status(500).json({
@@ -592,14 +653,14 @@ router.get('/admin/compression-config/current', adminAuth, (req, res) => {
   try {
     const config = global.compressionConfig || new CompressionConfig();
     const validation = config.validate();
-    
+
     res.json({
       success: true,
       config: config.toJSON(),
       validation: validation,
       loadedAt: global.compressionConfigLoadedAt || null
     });
-    
+
   } catch (error) {
     console.error('Erreur lors de la récupération de la configuration:', error);
     res.status(500).json({
