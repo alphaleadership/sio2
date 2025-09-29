@@ -21,13 +21,13 @@ async function initializeCompressionConfig() {
     global.compressionConfig = await CompressionConfig.loadFromFile(configPath);
     global.compressionConfigLoadedAt = new Date().toISOString();
     
-    console.log('Configuration de compression chargée:', {
+   /* console.log('Configuration de compression chargée:', {
       level: global.compressionConfig.compressionLevel,
       algorithm: global.compressionConfig.algorithm,
       minSize: global.compressionConfig.minFileSize,
       maxSize: global.compressionConfig.maxFileSize,
       loadedAt: global.compressionConfigLoadedAt
-    });
+    });*/
     
     // Sauvegarder la configuration par défaut si le fichier n'existait pas
     await global.compressionConfig.saveToFile(configPath);
@@ -48,7 +48,7 @@ require('./session-config')(app);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(logger('dev'));
+app.use(logger('common'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

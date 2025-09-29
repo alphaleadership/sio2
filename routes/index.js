@@ -35,11 +35,11 @@ async function initializeCompressionStats() {
       fileStorageMiddleware.stats = compressionStats;
     }
 
-    console.log('Statistiques de compression chargées:', {
+   /* console.log('Statistiques de compression chargées:', {
       totalFilesProcessed: compressionStats.stats.totalFilesProcessed,
       totalFilesCompressed: compressionStats.stats.totalFilesCompressed,
       totalSpaceSaved: compressionStats.getFormattedSpaceSaved()
-    });
+    });*/
   } catch (error) {
     console.error('Erreur lors du chargement des statistiques:', error.message);
     // Garder l'instance par défaut
@@ -164,8 +164,8 @@ router.get('/', userAuth(), function (req, res, next) {
 
 function renderFiles(req, res, reqPath, userDir, relBase) {
   async function getFilesInDir(dirPath, relPath = "") {
-    console.log(dirPath)
-    console.log(relPath)
+  //  console.log(dirPath)
+   // console.log(relPath)
     const files = fs.readdirSync(dirPath.replace("global/global", "global"), { withFileTypes: true });
     const processedFiles = [];
     const seenFiles = new Set(); // Pour éviter les doublons
@@ -292,10 +292,10 @@ function renderFiles(req, res, reqPath, userDir, relBase) {
     let files = [];
     try {
       const relPath = path.relative(userDir, reqPath);
-      console.log(relPath)
-      console.log(reqPath)
+     // console.log(relPath)
+    //  console.log(reqPath)
       files = await getFilesInDir(reqPath, relPath);
-      console.log(files)
+    //  console.log(files)
     } catch (err) {
       console.log(err);
       return res.status(500).send("Erreur lors de la lecture du dossier.");
