@@ -119,7 +119,7 @@ router.post('/upload', upload.array('file'), fileStorageMiddleware.createUploadM
 const globalShareDir = path.join(baseDir, 'global');
 if (!fs.existsSync(globalShareDir)) fs.mkdirSync(globalShareDir, { recursive: true });
 
-router.get('/', userAuth(), function (req, res, next) {
+router.get('/', userAuth('user'), function (req, res, next) {
   let rootChoices = [];
   let userDir = baseDir;
   let relBase = '';
