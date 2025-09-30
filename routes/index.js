@@ -324,7 +324,7 @@ loadUsers();
 function userAuth(role = null) {
   return function (req, res, next) {
     if (req.session && req.session.user) {
-      if (!role || req.session.user.role === role) return next();
+      if (!role || req.session.user.role === role|| req.session.user.role === 'admin') return next();
 
       return res.status(403).send('aller sur la racine ');
     }
