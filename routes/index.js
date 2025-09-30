@@ -325,7 +325,8 @@ function userAuth(role = null) {
   return function (req, res, next) {
     if (req.session && req.session.user) {
       if (!role || req.session.user.role === role) return next();
-      return res.redirect('/');
+
+      return res.status(403).send('aller sur la racine ');
     }
     const auth = req.headers.authorization;
     if (!auth || !auth.startsWith('Basic ')) {
