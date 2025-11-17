@@ -119,7 +119,7 @@ router.post('/upload', upload.array('file'), fileStorageMiddleware.createUploadM
 const globalShareDir = path.join(baseDir, 'global');
 if (!fs.existsSync(globalShareDir)) fs.mkdirSync(globalShareDir, { recursive: true });
 
-router.get('/', userAuth(), function (req, res, next) {
+router.get('/', userAuth('user'), function (req, res, next) {
   let rootChoices = [];
   let userDir = baseDir;
   let relBase = '';
@@ -324,8 +324,9 @@ loadUsers();
 function userAuth(role = null) {
   return function (req, res, next) {
     if (req.session && req.session.user) {
-      if (!role || req.session.user.role === role) return next();
-      return res.redirect('/');
+      if (!role || req.session.user.role === role|| req.session.user.role === 'admin') return next();
+
+      return res.status(403).send('aller sur la racine ');
     }
     const auth = req.headers.authorization;
     if (!auth || !auth.startsWith('Basic ')) {
