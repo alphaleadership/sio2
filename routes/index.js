@@ -353,7 +353,7 @@ router.post('/login', express.urlencoded({ extended: false }), function(req, res
 
   if (user) {
     // Authentification réussie
-    req.session.user = { username: user.username, role: user.role ||"users"};
+    req.session.user = { username: user.username, role: user.role ||"user"};
     // Crée le dossier perso si non existant
     const userDir = path.join(baseDir, 'users', user.username);
     if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
