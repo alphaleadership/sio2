@@ -167,7 +167,7 @@ router.get('/', ensureAuthenticated('user'), function (req, res, next) {
   res.redirect('/');
 });
 
-function renderFiles(req, res, reqPath, userDir, relBase) {
+async function renderFiles(req, res, reqPath, userDir, relBase) {
   async function getFilesInDir(dirPath, relPath = "") {
   //  console.log(dirPath)
    // console.log(relPath)
@@ -292,21 +292,18 @@ function renderFiles(req, res, reqPath, userDir, relBase) {
     return processedFiles;
   }
 
-  // Rendre la fonction asynchrone pour gérer les métadonnées
-  (async () => {
-    let files = [];
-    try {
-      const relPath = path.relative(userDir, reqPath);
-     // console.log(relPath)
-    //  console.log(reqPath)
-      files = await getFilesInDir(reqPath, relPath);
-    //  console.log(files)
-    } catch (err) {
-      console.log(err);
-      return res.status(500).send("Erreur lors de la lecture du dossier.");
+  try {
+    const relPath = path.relative(userDir, reqPath);
+    const files = await getFilesInDir(reqPath, relPath);
+    if (!res.headersSent) {
+      res.render('index', { title: 'Explorateur de fichiers', files: files, path: reqPath.replace(userDir, relBase).replace(/\\/g, '/'), user: req.session.user });
     }
-    res.render('index', { title: 'Explorateur de fichiers', files: files, path: reqPath.replace(userDir, relBase).replace(/\\/g, '/'), user: req.session.user });
-  })();
+  } catch (err) {
+    console.log(err);
+    if (!res.headersSent) {
+      res.status(500).send("Erreur lors de la lecture du dossier.");
+    }
+  }
 }
 
 const trashDir = path.join(baseDir, '..', '..', '.corbeille');
