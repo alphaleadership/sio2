@@ -120,46 +120,51 @@ const globalShareDir = path.join(baseDir, 'global');
 if (!fs.existsSync(globalShareDir)) fs.mkdirSync(globalShareDir, { recursive: true });
 
 router.get('/', ensureAuthenticated('user'), function (req, res, next) {
+  const user = req.session.user;
+
+  if (user.role === 'admin') {
+    // Admin has full access, render files directly
+    const reqPath = req.query.path ? path.join(baseDir, req.query.path) : baseDir;
+    if (!reqPath.startsWith(baseDir)) {
+      return res.status(400).send('Chemin invalide.');
+    }
+    return renderFiles(req, res, reqPath, baseDir, '');
+  }
+
+  // If we are here, it's a regular user
   let rootChoices = [];
   let userDir = baseDir;
   let relBase = '';
-  let isRoot = false;
-  if (req.session.user && (req.session.user.role === 'user' || req.session.user.role === 'admin')) {
-    // Racine : choix entre "Mon dossier" et "Partage global"
-    if (!req.query.path || req.query.path === '' || req.query.path === '/') {
-      isRoot = true;
-      rootChoices = [
-        { name: 'Mon dossier', path: '/users/' + req.session.user.username },
-        { name: 'Partage global', path: '/global' }
-      ];
-    }
-    // Navigation dans le dossier perso
-    if (req.query.path && req.query.path.startsWith('/users/' + req.session.user.username)) {
-      userDir = path.join(baseDir, 'users', req.session.user.username);
-      relBase = '/users/' + req.session.user.username;
-      const subPath = req.query.path.replace(relBase, '').replace(/^\/+/, '');
-      const reqPath = subPath ? path.join(userDir, subPath) : userDir;
-      if (!reqPath.startsWith(userDir)) return res.status(400).send('Chemin invalide.');
-      return renderFiles(req, res, reqPath, baseDir, relBase);
-    }
-    // Navigation dans le partage global
-    if (req.query.path && req.query.path.startsWith('/global')) {
-      const subPath = req.query.path.replace(/^\/+/, '').replace("/global", "");
-      const reqPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
-      if (!reqPath.startsWith(globalShareDir)) return res.status(400).send('Chemin invalide.');
-      return renderFiles(req, res, reqPath, baseDir, '');
-    }
-    // Sinon, affiche le choix racine
-    if (isRoot) {
-      return res.render('index', { title: 'Explorateur de fichiers', files: [], path: '/', user: req.session.user, rootChoices });
-    }
-    // Empêche d'accéder à d'autres partages
-    return res.redirect('/');
+
+  if (!req.query.path || req.query.path === '' || req.query.path === '/') {
+    // User is at their root, show choices
+    rootChoices = [
+      { name: 'Mon dossier', path: '/users/' + user.username },
+      { name: 'Partage global', path: '/global' }
+    ];
+    return res.render('index', { title: 'Explorateur de fichiers', files: [], path: '/', user: user, rootChoices });
   }
-  // Admin : accès complet
-  const reqPath = req.query.path ? path.join(baseDir, req.query.path) : baseDir;
-  if (!reqPath.startsWith(baseDir)) return res.status(400).send('Chemin invalide.');
-  renderFiles(req, res, reqPath, baseDir, '');
+
+  if (req.query.path.startsWith('/users/' + user.username)) {
+    // User is in their own folder
+    userDir = path.join(baseDir, 'users', user.username);
+    relBase = '/users/' + user.username;
+    const subPath = req.query.path.replace(relBase, '').replace(/^\/+/, '');
+    const reqPath = subPath ? path.join(userDir, subPath) : userDir;
+    if (!reqPath.startsWith(userDir)) return res.status(400).send('Chemin invalide.');
+    return renderFiles(req, res, reqPath, baseDir, relBase);
+  }
+
+  if (req.query.path.startsWith('/global')) {
+    // User is in global share
+    const subPath = req.query.path.replace(/^\/+/, '').replace("/global", "");
+    const reqPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
+    if (!reqPath.startsWith(globalShareDir)) return res.status(400).send('Chemin invalide.');
+    return renderFiles(req, res, reqPath, baseDir, '');
+  }
+
+  // If a regular user tries to access any other path, redirect them to their root.
+  res.redirect('/');
 });
 
 function renderFiles(req, res, reqPath, userDir, relBase) {
