@@ -119,7 +119,7 @@ router.post('/upload', upload.array('file'), fileStorageMiddleware.createUploadM
 const globalShareDir = path.join(baseDir, 'global');
 if (!fs.existsSync(globalShareDir)) fs.mkdirSync(globalShareDir, { recursive: true });
 
-router.get('/', userAuth('user'), function (req, res, next) {
+router.get('/', ensureAuthenticated('user'), function (req, res, next) {
   let rootChoices = [];
   let userDir = baseDir;
   let relBase = '';
@@ -314,6 +314,7 @@ const usersPath = path.resolve(__dirname, '../users.json');
 let users = [];
 function loadUsers() {
   try {
+    console.log(usersPath)
     users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
   } catch (e) {
     users = [];
@@ -321,44 +322,49 @@ function loadUsers() {
 }
 loadUsers();
 
-function userAuth(role = null) {
+function ensureAuthenticated(role = null) {
   return function (req, res, next) {
     if (req.session && req.session.user) {
-      if (!role || req.session.user.role === role|| req.session.user.role === 'admin') return next();
-
-      return res.status(403).send('aller sur la racine ');
+      const userRole = req.session.user.role;
+      if (userRole === 'users' || !role || userRole === role) {
+        return next(); // Authenticated and authorized
+      } else {
+        return res.status(403).send('Accès refusé: Rôle insuffisant.');
+      }
+    } else {
+      // Not authenticated
+      res.redirect('/login');
     }
-    const auth = req.headers.authorization;
-    if (!auth || !auth.startsWith('Basic ')) {
-      if (req.accepts('html')) return res.redirect('/login');
-      res.set('WWW-Authenticate', 'Basic realm="User Area"');
-      return res.status(401).send('Authentification requise');
-    }
-    const b64 = auth.split(' ')[1];
-    const [username, password] = Buffer.from(b64, 'base64').toString().split(':');
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user && (!role || user.role === role)) {
-      if (req.session) req.session.user = { username: user.username, role: user.role };
-      // Crée le dossier perso si non existant
-      //if (user.role === 'user') {
-      const userDir = path.join(baseDir, 'users', user.username);
-      if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
-
-      return next();
-    }
-    if (req.accepts('html')) return res.redirect('/');
-    res.set('WWW-Authenticate', 'Basic realm="User Area"');
-    return res.status(401).send('Accès refusé');
   }
 }
 
 // Pour compatibilité, alias adminAuth
-const adminAuth = userAuth('admin');
+const adminAuth = ensureAuthenticated('admin');
 
 // Vue de login générique
 router.get('/login', function (req, res) {
-  res.render('login');
+  res.render('login', { error: null });
 });
+
+// Route pour traiter le login
+router.post('/login', express.urlencoded({ extended: false }), function(req, res) {
+  const { username, password } = req.body;
+  const user = users.find(u => u.username === username && u.password === password);
+
+  if (user) {
+    // Authentification réussie
+    req.session.user = { username: user.username, role: user.role ||"users"};
+    // Crée le dossier perso si non existant
+    const userDir = path.join(baseDir, 'users', user.username);
+    if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
+    
+    res.redirect('/');
+  } else {
+    // Authentification échouée
+    res.render('login', { error: 'Nom d\'utilisateur ou mot de passe incorrect.' });
+  }
+});
+
 // Route pour afficher le formulaire d'inscription
 router.get('/register', function (req, res) {
   res.render('register');
@@ -370,16 +376,12 @@ router.post('/register', express.urlencoded({ extended: true }), function (req, 
   if (!username || !password) {
     return res.status(400).send('Nom d\'utilisateur et mot de passe requis');
   }
-  // Charger les utilisateurs existants
-  let users = [];
-  try {
-    users = JSON.parse(fs.readFileSync(path.join(__dirname, '../users.json')));
-  } catch (e) { }
+
   if (users.find(u => u.username === username)) {
     return res.status(400).send('Nom d\'utilisateur déjà utilisé');
   }
   users.push({ username: username, password: password, role: 'user' });
-  fs.writeFileSync(path.join(__dirname, '../users.json'), JSON.stringify(users, null, 2));
+  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
   res.redirect('/login');
 });
 
@@ -452,19 +454,21 @@ router.get('/download', fileStorageMiddleware.createDownloadMiddleware(), functi
     if (err || !stats.isFile()) {
       return res.status(404).send("Fichier non trouvé.");
     }
-    res.download(reqFile, path.basename(reqFile));
+    
+    const stream = fs.createReadStream(reqFile, { highWaterMark: 1024 });
+    res.setHeader('Content-Length', stats.size);
+    res.setHeader('Content-Disposition', `attachment; filename="${path.basename(reqFile)}"`);
+    stream.pipe(res);
   });
 });
 // --- Gestion des comptes admin (API REST simple) ---
 
 router.get('/admin/users', adminAuth, (req, res) => {
-  loadUsers();
   res.json(users.map(u => ({ username: u.username, role: u.role })));
 });
 
 
 router.post('/admin/users', adminAuth, (req, res) => {
-  loadUsers();
   const { username, password, role } = req.body;
   if (!username || !password || !role) return res.status(400).json({ error: 'Champs manquants' });
   if (users.some(u => u.username === username)) return res.status(409).json({ error: 'Déjà existant' });
@@ -475,7 +479,6 @@ router.post('/admin/users', adminAuth, (req, res) => {
 
 
 router.delete('/admin/users', adminAuth, (req, res) => {
-  loadUsers();
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: 'Nom manquant' });
   users = users.filter(u => u.username !== username);

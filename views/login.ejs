@@ -2,39 +2,21 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Connexion Admin</title>
+  <title>Connexion</title>
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
-  <h1>Connexion Admin</h1>
-  <form id="loginForm">
-    <label>Nom d'utilisateur : <input type="text" id="username" required></label><br>
-    <label>Mot de passe : <input type="password" id="password" required></label><br>
+  <h1>Connexion</h1>
+  
+  <% if (typeof error !== 'undefined' && error) { %>
+    <p style="color: red;"><%= error %></p>
+  <% } %>
+
+  <form action="/login" method="POST">
+    <label>Nom d'utilisateur : <input type="text" name="username" required></label><br>
+    <label>Mot de passe : <input type="password" name="password" required></label><br>
     <button type="submit">Se connecter</button>
   </form>
   <p><a href="/register">Créer un compte</a></p>
-  <script>
-    document.getElementById('loginForm').onsubmit = function(e) {
-      e.preventDefault();
-      const user = document.getElementById('username').value;
-      const pass = document.getElementById('password').value;
-      const b64 = btoa(user + ':' + pass);
-      // Essaye admin d'abord
-      fetch('/admin/trash', {
-        headers: { 'Authorization': 'Basic ' + b64 }
-      }).then(resp => {
-        if (resp.status === 401) {
-          // Essaye accès utilisateur non admin
-          fetch('/', { headers: { 'Authorization': 'Basic ' + b64 } })
-            .then(r2 => {
-              if (r2.status === 401) alert('Identifiants invalides');
-              else window.location = '/';
-            });
-        } else {
-          window.location = '/admin/trash';
-        }
-      });
-    };
-  </script>
 </body>
 </html>
