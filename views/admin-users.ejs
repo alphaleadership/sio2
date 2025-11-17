@@ -15,7 +15,7 @@
   <h2>Comptes existants</h2>
   <table border="1" cellpadding="5">
     <thead>
-      <tr><th>Nom d'utilisateur</th><th>Action</th></tr>
+      <tr><th>Nom d'utilisateur</th><th>Rôle</th><th>Action</th></tr>
     </thead>
     <tbody id="adminList">
     </tbody>
@@ -42,7 +42,7 @@
           tbody.innerHTML = '';
           list.forEach(u => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${u.username}</td><td><button onclick="deleteUser('${u.username}')">Supprimer</button></td>`;
+            tr.innerHTML = `<td>${u.username}</td><td>${u.role}</td><td><button onclick="deleteUser('${u.username}')">Supprimer</button></td>`;
             tbody.appendChild(tr);
           });
         });

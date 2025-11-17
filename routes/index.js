@@ -124,7 +124,7 @@ router.get('/', ensureAuthenticated('user'), function (req, res, next) {
   let userDir = baseDir;
   let relBase = '';
   let isRoot = false;
-  if (req.session.user && req.session.user.role === 'user') {
+  if (req.session.user && (req.session.user.role === 'user' || req.session.user.role === 'admin')) {
     // Racine : choix entre "Mon dossier" et "Partage global"
     if (!req.query.path || req.query.path === '' || req.query.path === '/') {
       isRoot = true;
@@ -326,8 +326,14 @@ function ensureAuthenticated(role = null) {
   return function (req, res, next) {
     if (req.session && req.session.user) {
       const userRole = req.session.user.role;
-      if (userRole === 'users' || !role || userRole === role) {
-        return next(); // Authenticated and authorized
+      if (!role) { // No specific role required, just authenticated
+        return next();
+      } else if (role === 'user') { // 'user' role required, allow 'user' and 'admin'
+        if (userRole === 'user' || userRole === 'admin') {
+          return next();
+        }
+      } else if (userRole === role) { // Specific role required, must match
+        return next();
       } else {
         return res.status(403).send('Accès refusé: Rôle insuffisant.');
       }
