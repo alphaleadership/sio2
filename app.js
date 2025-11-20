@@ -71,6 +71,10 @@ app.use(function(req, res, next) {
   next();
 });
 
+// Middleware de sécurité pour vérifier l'accès aux fichiers
+const { checkFileAccess } = require('./lib/permissions');
+app.use(checkFileAccess);
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
