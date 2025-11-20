@@ -429,7 +429,25 @@ router.post('/admin/restore', adminAuth, function (req, res) {
     res.status(500).send('Erreur restauration.');
   }
 });
-
+router.post('/admin/delete', adminAuth, function (req, res) {
+  const trashFile = req.body.file;
+  if (!trashFile) return res.status(400).send('Fichier non spécifié.');
+  const absTrashFile = path.join(trashDir, trashFile);
+  if (!absTrashFile.startsWith(trashDir) || !fs.existsSync(absTrashFile)) {
+    return res.status(404).send('Fichier non trouvé dans la corbeille.');
+  }
+  // Retrouver le nom original (après le timestamp)
+  //const origName = trashFile.replace(/^\d+_/, '');
+  //const destPath = path.join(baseDir, origName);
+  // Créer dossier si besoin
+//  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  try {
+    fs.unlinkSync(absTrashFile);
+    res.redirect('/admin/trash');
+  } catch (e) {
+    res.status(500).send('Erreur restauration.');
+  }
+});
 // Route pour supprimer (déplacer) un fichier dans la corbeille
 router.post('/delete', function (req, res, next) {
   const relFile = req.body.file;

@@ -32,6 +32,12 @@
               <button type="submit">Restaurer</button>
             </form>
           </td>
+            <td>
+            <form method="post" action="/admin/delete" style="display:inline">
+              <input type="hidden" name="file" value="<%= file.name %>">
+              <button type="submit">disparition</button>
+            </form>
+          </td>
         </tr>
       <% }) %>
     </tbody>
