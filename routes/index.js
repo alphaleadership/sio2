@@ -171,13 +171,13 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
   async function getFilesInDir(dirPath, relPath = "") {
   //  console.log(dirPath)
    // console.log(relPath)
-    const files = fs.readdirSync(dirPath.replace("global\\global", "global"), { withFileTypes: true });
+    const files = fs.readdirSync(dirPath.replace("global\\global", "global").replace("global/global", "global"), { withFileTypes: true });
     const processedFiles = [];
     const seenFiles = new Set(); // Pour éviter les doublons
 
     for (const file of files) {
-      const fullPath = path.join(dirPath.replace("global\\global", "global"), file.name);
-      const relativePath = path.join(relPath.replace("global\\global", "global"), file.name);
+      const fullPath = path.join(dirPath.replace("global\\global", "global").replace("global/global", "global"), file.name);
+      const relativePath = path.join(relPath.replace("global\\global", "global").replace("global/global", "global"), file.name);
 
       // Ignorer les fichiers .meta (métadonnées de compression)
       if (file.name.endsWith('.meta')) {
