@@ -8,6 +8,7 @@ const fs =require("fs")
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var filesRouter = require('./routes/files'); // Nouvelle route pour les fichiers
 
 var app = express();
 
@@ -20,14 +21,6 @@ async function initializeCompressionConfig() {
     // Charger la configuration depuis le fichier ou utiliser les valeurs par défaut
     global.compressionConfig = await CompressionConfig.loadFromFile(configPath);
     global.compressionConfigLoadedAt = new Date().toISOString();
-    
-   /* console.log('Configuration de compression chargée:', {
-      level: global.compressionConfig.compressionLevel,
-      algorithm: global.compressionConfig.algorithm,
-      minSize: global.compressionConfig.minFileSize,
-      maxSize: global.compressionConfig.maxFileSize,
-      loadedAt: global.compressionConfigLoadedAt
-    });*/
     
     // Sauvegarder la configuration par défaut si le fichier n'existait pas
     await global.compressionConfig.saveToFile(configPath);
@@ -79,6 +72,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/files', filesRouter); // Nouvelle route pour les fichiers
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
