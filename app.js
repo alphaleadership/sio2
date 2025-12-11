@@ -3,7 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const fs =require("fs")
+const fs = require("fs");
+const jwt = require('jsonwebtoken');
 // Ajout de la configuration de session
 
 var indexRouter = require('./routes/index');
@@ -13,6 +14,23 @@ var apiFilesRouter = require('./routes/api/files'); // Route pour l'API REST
 var apiAuthRouter = require('./routes/api/auth'); // Route pour l'authentification JWT
 
 var app = express();
+
+// Clé secrète pour signer les tokens JWT (à remplacer par une clé plus sécurisée en production)
+const JWT_SECRET = process.env.JWT_SECRET || 'ta_cle_secrete_ici';
+
+// Middleware pour vérifier le token JWT
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
 
 // Initialisation de la configuration de compression globale
 async function initializeCompressionConfig() {
@@ -76,8 +94,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/files', filesRouter); // Route pour l'interface web
 app.use('/api/auth', apiAuthRouter); // Route pour l'authentification JWT
-app.use('/api/files', apiFilesRouter); // Route pour l'API REST
-
+app.use('/api/files', authenticateToken, apiFilesRouter); // Route pour l'API REST (protégée par JWT)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
