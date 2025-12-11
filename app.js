@@ -8,7 +8,8 @@ const fs =require("fs")
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var filesRouter = require('./routes/files'); // Nouvelle route pour les fichiers
+var filesRouter = require('./routes/files'); // Route pour l'interface web
+var apiFilesRouter = require('./routes/api/files'); // Route pour l'API REST
 
 var app = express();
 
@@ -72,7 +73,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/files', filesRouter); // Nouvelle route pour les fichiers
+app.use('/files', filesRouter); // Route pour l'interface web
+app.use('/api/files', apiFilesRouter); // Route pour l'API REST
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
