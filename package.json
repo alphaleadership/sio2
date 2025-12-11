@@ -3,20 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "test": "node --test test/**/*.test.js"
+    "start": "bun run index.js",
+    "test": "bun test"
   },
   "dependencies": {
-    "cookie-parser": "~1.4.4",
+    "@elysiajs/node": "^1.4.2",
+    "@elysiajs/static": "^1.4.7",
+    "cookie-parser": "~1.4.7",
     "debug": "~2.6.9",
     "ejs": "^3.1.10",
-    "express": "~5.1.0",
-    "express-session": "^1.18.2",
-    "http-errors": "~2.0.0",
-    "jade": "~1.11.0",
+    "elysia": "^1.4.18",
     "localtunnel": "^2.0.2",
-    "morgan": "~1.10.1",
     "multer": "^2.0.2",
-    "session-file-store": "^1.5.0"
+    "nanoid": "^5.1.6"
   }
 }
