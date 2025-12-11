@@ -75,8 +75,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/files', filesRouter); // Route pour l'interface web
-app.use('/api/files', apiFilesRouter); // Route pour l'API REST
 app.use('/api/auth', apiAuthRouter); // Route pour l'authentification JWT
+app.use('/api/files', apiFilesRouter); // Route pour l'API REST
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
