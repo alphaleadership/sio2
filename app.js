@@ -10,6 +10,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var filesRouter = require('./routes/files'); // Route pour l'interface web
 var apiFilesRouter = require('./routes/api/files'); // Route pour l'API REST
+var apiAuthRouter = require('./routes/api/auth'); // Route pour l'authentification JWT
 
 var app = express();
 
@@ -75,6 +76,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/files', filesRouter); // Route pour l'interface web
 app.use('/api/files', apiFilesRouter); // Route pour l'API REST
+app.use('/api/auth', apiAuthRouter); // Route pour l'authentification JWT
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
