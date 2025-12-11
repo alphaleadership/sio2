@@ -2,8 +2,12 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs-extra');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 const upload = multer({ dest: path.join(__dirname, '../../tmp_uploads') });
+
+// Clé secrète pour vérifier les tokens (doit être la même que dans auth.js)
+const JWT_SECRET = process.env.JWT_SECRET || 'ta_cle_secrete_ici';
 
 // Réutiliser les services existants
 const CompressionService = require('../../lib/compression/CompressionService');
@@ -17,20 +21,28 @@ const fileStorageMiddleware = new FileStorageMiddleware(compressionService, comp
 // Dossier de base pour les fichiers partagés
 const baseDir = path.resolve("../partage");
 
-// Middleware pour vérifier l'authentification (optionnel, à adapter selon tes besoins)
-const ensureAuthenticated = require('../index').ensureAuthenticated;
+// Middleware pour vérifier le token JWT
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) return res.sendStatus(401);
+  
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
 
 // GET /api/files - Liste les fichiers disponibles
-router.get('/', ensureAuthenticated('user'), async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const user = req.session.user;
     let userDir = baseDir;
     
-    if (user.role === 'admin') {
-      // Admin voit tout
-    } else {
+    if (req.user.role !== 'admin') {
       // Utilisateur normal : restreint à son dossier
-      userDir = path.join(baseDir, 'users', user.username);
+      userDir = path.join(baseDir, 'users', req.user.username);
     }
     
     const files = fs.readdirSync(userDir)
@@ -54,12 +66,11 @@ router.get('/', ensureAuthenticated('user'), async (req, res) => {
 });
 
 // GET /api/files/:filename - Télécharge un fichier
-router.get('/:filename', ensureAuthenticated('user'), (req, res) => {
-  const user = req.session.user;
+router.get('/:filename', authenticateToken, (req, res) => {
   let userDir = baseDir;
   
-  if (user.role !== 'admin') {
-    userDir = path.join(baseDir, 'users', user.username);
+  if (req.user.role !== 'admin') {
+    userDir = path.join(baseDir, 'users', req.user.username);
   }
   
   const filePath = path.join(userDir, req.params.filename);
@@ -71,7 +82,7 @@ router.get('/:filename', ensureAuthenticated('user'), (req, res) => {
 });
 
 // POST /api/files - Upload un fichier
-router.post('/', ensureAuthenticated('user'), upload.single('file'), fileStorageMiddleware.createUploadMiddleware(), (req, res) => {
+router.post('/', authenticateToken, upload.single('file'), fileStorageMiddleware.createUploadMiddleware(), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: "Aucun fichier uploadé." });
   }
@@ -85,12 +96,11 @@ router.post('/', ensureAuthenticated('user'), upload.single('file'), fileStorage
 });
 
 // DELETE /api/files/:filename - Supprime un fichier
-router.delete('/:filename', ensureAuthenticated('user'), (req, res) => {
-  const user = req.session.user;
+router.delete('/:filename', authenticateToken, (req, res) => {
   let userDir = baseDir;
   
-  if (user.role !== 'admin') {
-    userDir = path.join(baseDir, 'users', user.username);
+  if (req.user.role !== 'admin') {
+    userDir = path.join(baseDir, 'users', req.user.username);
   }
   
   const filePath = path.join(userDir, req.params.filename);
