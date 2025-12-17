@@ -1,6 +1,10 @@
-import { Elysia, t } from 'elysia';
+import { Elysia, t, } from 'elysia';
 import { staticPlugin } from '@elysiajs/static';
 import { customSession } from './lib/session-plugin.mjs';
+import { 
+ Html
+ } from '@elysiajs/html'
+ import { jwt } from '@elysiajs/jwt'
 import ejs from 'ejs';
 import path from 'path';
 import fs from 'fs';
@@ -12,6 +16,12 @@ import FileStorageMiddleware from './lib/compression/FileStorageMiddleware.cjs';
 import FileMetadataManager from './lib/compression/FileMetadataManager.cjs';
 import { openapi
  } from '@elysiajs/openapi'
+ function html(body, init={}) {
+  const headers = new Headers(init?.headers)
+  if (!headers.has('Content-Type')) headers.set('Content-Type', 'text/html')
+  return new Response(body, { ...init, headers })
+}
+const __dirname = new URL('.', import.meta.url).pathname;
 console.log(CompressionStats)
 // --- EJS rendering helper ---
 async function renderEjs(templatePath, data = {}) {
@@ -21,14 +31,14 @@ async function renderEjs(templatePath, data = {}) {
       if (err) {
         return reject(err);
       }
-      resolve(str || '');
+      resolve(html(str || ''));
     });
   });
 }
 
 // --- User loading ---
 const usersPath = path.resolve("..", 'users.json');
-let users = [];
+let users = []; 
 function loadUsers() {
   try {
     if (fs.existsSync(usersPath)) {
@@ -223,9 +233,9 @@ async function renderFiles(set, query, user, userDir, relBase) {
     const relPath = path.relative(userDir, reqPath);
     const files = await getFilesInDir(reqPath, relPath);
 
-    const html = await renderEjs('index', { title: 'Explorateur de fichiers', files: files, path: reqPath.replace(userDir, relBase).replace(/\\/g, '/'), user: user });
-    set.headers['Content-Type'] = 'text/html; charset=utf-8';
-    return html;
+    const html2 = await renderEjs('index', { title: 'Explorateur de fichiers', files: files, path: reqPath.replace(userDir, relBase).replace(/\\/g, '/'), user: user });
+   // set.headers['Content-Type'] = 'text/html; charset=utf-8';
+    return html2;
 
   } catch (err) {
     console.log(err);
@@ -236,16 +246,29 @@ async function renderFiles(set, query, user, userDir, relBase) {
 
 
 
-const app = new Elysia({ adapter: node("test"),aot:false })
+const app = new Elysia({ adapter: node("test"),aot:false }) .use(
+        jwt({
+            name: 'jwt',
+            secret: 'Fischl von Luftschloss Narfidort'
+        })
+    )
 .use(openapi())
- 
-
+ customSession()(app)
+  app.use(staticPlugin({ assets: 'public', prefix: '/' }))
   
-  app.get('/', async ({ session, query, set }) => {
+  app.get('/', async ({  query, set,redirect,response, cookie: { auth },jwt }) => {
+    console.log(auth.value)
+    if(!auth.value) {
+      set.redirect="/login";
+      return
+    }
+    const session = await jwt.verify(auth.value);
+    console.log(session)
     const user = session.user;
     if (!user) {
-      set.redirect = '/login';
-      return;
+      
+       set.redirect="/login";
+       return
     }
 
     if (user.role === 'admin') {
@@ -255,7 +278,7 @@ const app = new Elysia({ adapter: node("test"),aot:false })
         set.status = 400;
         return 'Chemin invalide.';
       }
-      return renderFiles(set, query, user, baseDir, '');
+      return renderFiles(set, query, user, baseDir, '')
     }
 
     // If we are here, it's a regular user
@@ -269,9 +292,9 @@ const app = new Elysia({ adapter: node("test"),aot:false })
         { name: 'Mon dossier', path: '/users/' + user.username },
         { name: 'Partage global', path: '/global' }
       ];
-      const html = await renderEjs('index', { title: 'Explorateur de fichiers', files: [], path: '/', user: user, rootChoices });
-      set.headers['Content-Type'] = 'text/html; charset=utf-8';
-      return html;
+      const html2 = await renderEjs('index', { title: 'Explorateur de fichiers', files: [], path: '/', user: user, rootChoices });
+      //set.headers['Content-Type'] = 'text/html; charset=utf-8';
+      return html2;
     }
 
     if (query.path.startsWith('/users/' + user.username)) {
@@ -284,7 +307,7 @@ const app = new Elysia({ adapter: node("test"),aot:false })
         set.status = 400;
         return 'Chemin invalide.';
       }
-      return renderFiles(set, { path: query.path }, user, userDir, relBase);
+      return (renderFiles(set, { path: query.path }, user, userDir, relBase));
     }
 
     if (query.path.startsWith('/global')) {
@@ -295,7 +318,7 @@ const app = new Elysia({ adapter: node("test"),aot:false })
         set.status = 400;
         return 'Chemin invalide.';
       }
-      return renderFiles(set, { path: query.path }, user, baseDir, '');
+      return (renderFiles(set, { path: query.path }, user, baseDir, ''));
     }
 
     // If a regular user tries to access any other path, redirect them to their root.
@@ -345,29 +368,46 @@ const app = new Elysia({ adapter: node("test"),aot:false })
       set.redirect = referer;
 
   }, {
-      body: t.Object({
+      body: [t.Object({
           file: t.Any(),
           path: t.Optional(t.String())
-      })
+      })]
   })
   .get('/login', async ({ set }) => {
-    const html = await renderEjs('login', { error: null });
-    set.headers['Content-Type'] = 'text/html; charset=utf-8';
-    return html;
+    const html2 = await renderEjs('login', { error: null });
+   
+   // set.headers['Content-Type'] = 'text/html; charset=utf-8';
+    return html2;
   })
-  .post('/login', async ({ body, session, set }) => {
+  .post('/login', async ({jwt, body, session, set,cookie: { auth }  }) => {
+    loadUsers()
     const { username, password } = body;
+    console.log(body)
     const user = users.find(u => u.username === username && u.password === password);
-
+    console.log(users)
+    console.log(jwt)
     if (user) {
+      session=session||{}
       session.user = { username: user.username, role: user.role || "user" };
       const userDir = path.join(__dirname, 'public', 'partage', 'users', user.username);
       if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
       set.redirect = '/';
+      const value = await jwt.sign({user: session.user})
+        console.log(value)
+        if(auth){
+           auth.set({
+            value,
+            httpOnly: true,
+            maxAge: 7 * 86400,
+            path: '/',
+        })
+        }
+       
+      return value
     } else {
       const html = await renderEjs('login', { error: 'Nom d\'utilisateur ou mot de passe incorrect.' });
-      set.headers['Content-Type'] = 'text/html; charset=utf-8';
-      return html;
+     // set.headers['Content-Type'] = 'text/html; charset=utf-8';
+      return (html);
     }
   }, {
     body: t.Object({
@@ -378,7 +418,7 @@ const app = new Elysia({ adapter: node("test"),aot:false })
   .get('/register', async ({ set }) => {
     const html = await renderEjs('register');
     set.headers['Content-Type'] = 'text/html; charset=utf-8';
-    return html;
+    return (html);
   })
   .post('/register', async ({ body, set }) => {
     const { username, password } = body;
@@ -439,15 +479,16 @@ app.post('/delete', async ({ body, set, headers }) => {
 });
 
 const adminAuth = (handler) => async (context) => {
-    const { session, set } = context;
-    const user = session.user;
-    if (user && user.role === 'admin') {
+    const { session, set,jwt,cookie:{auth} } = context;
+    const user = await jwt.verify(auth.value);
+    console.log(user.user)
+    if (user && user.user.role === 'admin') {
         return handler(context);
     }
     set.status = 403;
     return 'Accès refusé: Rôle insuffisant.';
 };
-/*
+
 app.get('/admin/trash', adminAuth(async ({ set }) => {
   try {
     const files = fs.readdirSync(trashDir)
@@ -672,7 +713,7 @@ app.post('/admin/delete', adminAuth(async ({ body, set }) => {
         file: t.String()
     })
 });
-*/
+
 app.get('/download', async ({ query, set }) => {
     await new Promise((resolve, reject) => {
         const req = { query };
@@ -710,7 +751,7 @@ app.get('/download', async ({ query, set }) => {
         fileStorageMiddleware.handleDownload(req, res, next)
             .catch(reject);
     }).then(fileContent => {
-        return new Response(fileContent, { headers: set.headers });
+        return (fileContent, { headers: set.headers });
     }).catch(err => {
         set.status = 500;
         return err.message;
