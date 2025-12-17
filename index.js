@@ -1,16 +1,18 @@
 import { Elysia, t } from 'elysia';
 import { staticPlugin } from '@elysiajs/static';
-import { customSession } from './lib/session-plugin.js';
+import { customSession } from './lib/session-plugin.mjs';
 import ejs from 'ejs';
 import path from 'path';
 import fs from 'fs';
 import { node } from '@elysiajs/node';
-import CompressionConfig from './lib/compression/CompressionConfig.js';
-import CompressionStats from './lib/compression/CompressionStats.js';
-import CompressionService from './lib/compression/CompressionService.js';
-import FileStorageMiddleware from './lib/compression/FileStorageMiddleware.js';
-import FileMetadataManager from './lib/compression/FileMetadataManager.js';
-
+import * as CompressionConfig from './lib/compression/CompressionConfig.js';
+import CompressionStats from './lib/compression/CompressionStats.cjs';
+import CompressionService from './lib/compression/CompressionService.cjs';
+import FileStorageMiddleware from './lib/compression/FileStorageMiddleware.cjs';
+import FileMetadataManager from './lib/compression/FileMetadataManager.cjs';
+import { openapi
+ } from '@elysiajs/openapi'
+console.log(CompressionStats)
 // --- EJS rendering helper ---
 async function renderEjs(templatePath, data = {}) {
   const filePath = path.join(process.cwd(), 'views', `${templatePath}.ejs`);
@@ -45,9 +47,9 @@ loadUsers();
 async function initializeCompressionConfig() {
   try {
     const configPath = path.join(".", 'temp', 'compression-config.json');
-    
+    console.log(new CompressionConfig.default())
     // Charger la configuration depuis le fichier ou utiliser les valeurs par défaut
-    global.compressionConfig = await CompressionConfig.loadFromFile(configPath);
+    global.compressionConfig = await new CompressionConfig.default().loadFromFile(configPath);
     global.compressionConfigLoadedAt = new Date().toISOString();
     
     // Sauvegarder la configuration par défaut si le fichier n'existait pas
@@ -56,17 +58,17 @@ async function initializeCompressionConfig() {
   } catch (error) {
     console.error('Erreur lors de l\'initialisation de la configuration de compression:', error);
     // Utiliser la configuration par défaut en cas d'erreur
-    global.compressionConfig = new CompressionConfig();
+    global.compressionConfig = new CompressionConfig.default();
   }
 }
 
 // Initialiser le système de statistiques
-let compressionStats = new CompressionStats(); // Instance par défaut immédiate
+let compressionStats = new CompressionStats.default(); // Instance par défaut immédiate
 
 async function initializeCompressionStats() {
   try {
     const statsPath = path.join(".", 'temp', 'compression-stats.json');
-    const loadedStats = await CompressionStats.loadFromFile(statsPath);
+    const loadedStats = await CompressionStats.default.loadFromFile(statsPath);
 
     // Remplacer l'instance par défaut par les statistiques chargées
     compressionStats = loadedStats;
@@ -77,8 +79,8 @@ async function initializeCompressionStats() {
   }
 }
 
-const compressionConfig = global.compressionConfig || new CompressionConfig();
-const compressionService = new CompressionService();
+const compressionConfig = global.compressionConfig || new CompressionConfig.default();
+const compressionService = new CompressionService.default();
 const fileStorageMiddleware = new FileStorageMiddleware(compressionService, compressionConfig, compressionStats);
 
 
@@ -234,10 +236,12 @@ async function renderFiles(set, query, user, userDir, relBase) {
 
 
 
-const app = new Elysia({ adapter: node() })
+const app = new Elysia({ adapter: node("test"),aot:false })
+.use(openapi())
+ 
+
   
-  .use(customSession())
-  .get('/', async ({ session, query, set }) => {
+  app.get('/', async ({ session, query, set }) => {
     const user = session.user;
     if (!user) {
       set.redirect = '/login';
@@ -443,7 +447,7 @@ const adminAuth = (handler) => async (context) => {
     set.status = 403;
     return 'Accès refusé: Rôle insuffisant.';
 };
-
+/*
 app.get('/admin/trash', adminAuth(async ({ set }) => {
   try {
     const files = fs.readdirSync(trashDir)
@@ -668,7 +672,7 @@ app.post('/admin/delete', adminAuth(async ({ body, set }) => {
         file: t.String()
     })
 });
-
+*/
 app.get('/download', async ({ query, set }) => {
     await new Promise((resolve, reject) => {
         const req = { query };

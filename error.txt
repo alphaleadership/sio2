@@ -1,0 +1,12 @@
+410 | 			this.telemetry = {
+411 | 				stack: new Error().stack
+412 | 			}
+413 | 	}
+414 | 
+415 | 	'~adapter': ElysiaAdapter
+       ^
+TypeError: t.Module is not a function. (In 't.Module({})', 't.Module' is undefined)
+      at new Elysia (D:\partagesio\node_modules\elysia\src\index.ts:415:2)
+      at D:\partagesio\index.js:237:13
+
+Bun v1.3.1 (Windows x64)
