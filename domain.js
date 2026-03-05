@@ -1,4 +1,6 @@
-const lt = require("localtunnel");
+ const debug=require("debug")
+ debug.enable("*")
+ const lt = require("localtunnel");
 const fs = require("fs");
 const path = require("path");
 
