@@ -31,7 +31,7 @@ async function createTunnel() {
     try {
         log("INFO", "Démarrage du tunnel localtunnel", { port: 3000, subdomain: "partagesio2chaptal" });
         
-        const tunnel = await lt({ port: 3000, subdomain: "partagesiochaptal",max_conn:60 });
+        const tunnel = await lt({ port: 3000, subdomain: "partagesiochaptal",max_conn:6 });
         tunnel.tunnelCluster.max_conn=MAX_CONNECTIONS
         currentTunnel = tunnel;
         
