@@ -44,7 +44,10 @@ lt({ port: 3000, subdomain: "partagesiochaptal" }).then(tunnel => {
     // Gestion des événements du tunnel
     tunnel.on('request', (info) => {
         // Enregistrer toutes les informations de la requête
+        const connectionId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        
         log("INFO", "Requête reçue", {
+            connectionId,
             method: info.method,
             path: info.path,
             headers: info.headers,
@@ -54,13 +57,13 @@ lt({ port: 3000, subdomain: "partagesiochaptal" }).then(tunnel => {
         
         if (activeConnections >= MAX_CONNECTIONS) {
             log("WARN", "Connexion refusée - limite atteinte", {
+                connectionId,
                 method: info.method,
                 path: info.path,
                 activeConnections
             });
         } else {
             activeConnections++;
-            const connectionId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
             
             log("INFO", "Nouvelle connexion acceptée", {
                 connectionId,
@@ -73,20 +76,22 @@ lt({ port: 3000, subdomain: "partagesiochaptal" }).then(tunnel => {
                 id: connectionId,
                 startTime: Date.now()
             });
-            
-            // Simuler la fin de connexion après un délai
-            setTimeout(() => {
-                if (activeConnections > 0) {
-                    activeConnections--;
-                    const conn = connectionHistory.find(c => c.id === connectionId);
-                    log("INFO", "Connexion terminée", {
-                        connectionId,
-                        duration: conn ? Date.now() - conn.startTime : 0,
-                        activeConnections
-                    });
-                }
-            }, 5000); // Timeout de 5 secondes par connexion
         }
+    });
+    
+    tunnel.on('response', (info) => {
+        // Marquer la requête comme fermée
+        activeConnections = Math.max(0, activeConnections - 1);
+        
+        const conn = connectionHistory.find(c => c.id && Date.now() - c.startTime < 60000);
+        
+        log("INFO", "Requête terminée", {
+            statusCode: info.statusCode,
+            method: info.method,
+            path: info.path,
+            duration: conn ? Date.now() - conn.startTime : 'unknown',
+            activeConnections
+        });
     });
     
     tunnel.on('error', (err) => {
