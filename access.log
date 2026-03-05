@@ -1375,3 +1375,8 @@
 ::ffff:127.0.0.1 - - [05/Mar/2026:09:58:32 +0000] "GET / HTTP/1.1" 200 2372 "https://partagesiochaptal.loca.lt/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
 ::ffff:127.0.0.1 - - [05/Mar/2026:10:15:04 +0000] "GET / HTTP/1.1" 200 2372 "https://partagesiochaptal.loca.lt/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
 ::ffff:127.0.0.1 - - [05/Mar/2026:10:20:14 +0000] "GET / HTTP/1.1" 200 2372 "https://partagesiochaptal.loca.lt/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
+::ffff:127.0.0.1 - - [05/Mar/2026:10:32:57 +0000] "GET / HTTP/1.1" 302 35 "https://app.pm2.io/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
+::ffff:127.0.0.1 - - [05/Mar/2026:10:32:57 +0000] "GET /login HTTP/1.1" 200 528 "https://app.pm2.io/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
+::ffff:127.0.0.1 - - [05/Mar/2026:10:32:58 +0000] "GET /stylesheets/style.css HTTP/1.1" 304 - "https://partagesio2chaptal.loca.lt/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
+::ffff:127.0.0.1 - - [05/Mar/2026:10:33:11 +0000] "POST /login HTTP/1.1" 302 30 "https://partagesio2chaptal.loca.lt/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
+::ffff:127.0.0.1 - - [05/Mar/2026:10:33:11 +0000] "GET / HTTP/1.1" 200 2372 "https://partagesio2chaptal.loca.lt/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
