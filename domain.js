@@ -6,7 +6,7 @@ const path = require("path");
 
 // Configuration du système de logs
 const LOG_FILE = path.join(__dirname, "tunnel.log");
-const MAX_CONNECTIONS = 60;
+const MAX_CONNECTIONS = 6;
 
 // Suivi des connexions actives
 let activeConnections = 0;
