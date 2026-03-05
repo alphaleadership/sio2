@@ -847,3 +847,8 @@
 [2026-03-05T13:27:57.324Z] [INFO] Tunnel créé avec succès {"url":"https://swift-mule-46.loca.lt"} (Connexions actives: 0)
 [2026-03-05T13:27:57.325Z] [WARN] URL du tunnel incorrecte {"expected":"https://partagesiochaptal.loca.lt","actual":"https://swift-mule-46.loca.lt"} (Connexions actives: 0)
 [2026-03-05T13:27:57.325Z] [ERROR] Erreur lors de la création du tunnel {"error":"URL du tunnel incorrecte","stack":"Error: URL du tunnel incorrecte\n    at createTunnel (/home/labo/temp/sio2/domain.js:42:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"} (Connexions actives: 0)
+[2026-03-05T13:28:02.333Z] [INFO] Nouvelle tentative de création du tunnel {} (Connexions actives: 0)
+[2026-03-05T13:28:02.333Z] [INFO] Démarrage du tunnel localtunnel {"port":3000,"subdomain":"partagesio2chaptal"} (Connexions actives: 0)
+[2026-03-05T13:28:03.690Z] [INFO] Tunnel créé avec succès {"url":"https://slimy-snake-33.loca.lt"} (Connexions actives: 0)
+[2026-03-05T13:28:03.690Z] [WARN] URL du tunnel incorrecte {"expected":"https://partagesiochaptal.loca.lt","actual":"https://slimy-snake-33.loca.lt"} (Connexions actives: 0)
+[2026-03-05T13:28:03.690Z] [ERROR] Erreur lors de la création du tunnel {"error":"URL du tunnel incorrecte","stack":"Error: URL du tunnel incorrecte\n    at createTunnel (/home/labo/temp/sio2/domain.js:42:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"} (Connexions actives: 0)
