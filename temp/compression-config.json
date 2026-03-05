@@ -17,7 +17,8 @@
     ".java",
     ".pdf",
     ".docx",
-    ".doc"
+    ".doc",
+    ".iso"
   ],
   "excludeTypes": [
     ".jpg",
@@ -42,6 +43,6 @@
   "maxFileSize": 104857600,
   "compressionTimeout": 5000,
   "algorithm": "gzip",
-  "savedAt": "2025-09-18T10:00:36.229Z",
+  "savedAt": "2026-03-04T09:53:43.158Z",
   "version": "1.0"
 }
