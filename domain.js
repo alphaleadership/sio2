@@ -29,14 +29,14 @@ async function createTunnel() {
     try {
         log("INFO", "Démarrage du tunnel localtunnel", { port: 3000, subdomain: "partagesio2chaptal" });
         
-        const tunnel = await lt({ port: 3000, subdomain: "partagesio2chaptal" });
+        const tunnel = await lt({ port: 3000, subdomain: "partagesiochaptal" });
         tunnel.tunnelCluster.max_conn=MAX_CONNECTIONS
         currentTunnel = tunnel;
         
         log("INFO", "Tunnel créé avec succès", { url: tunnel.url });
         
-        if (tunnel.url !== "https://partagesio2chaptal.loca.lt") {
-            log("WARN", "URL du tunnel incorrecte", { expected: "https://partagesio2chaptal.loca.lt", actual: tunnel.url });
+        if (tunnel.url !== "https://partagesiochaptal.loca.lt") {
+            log("WARN", "URL du tunnel incorrecte", { expected: "https://partagesiochaptal.loca.lt", actual: tunnel.url });
             throw new Error("URL du tunnel incorrecte");
         }
         
