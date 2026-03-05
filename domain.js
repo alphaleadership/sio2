@@ -4,7 +4,7 @@ const path = require("path");
 
 // Configuration du système de logs
 const LOG_FILE = path.join(__dirname, "tunnel.log");
-const MAX_CONNECTIONS = 2;
+const MAX_CONNECTIONS = 60;
 
 // Suivi des connexions actives
 let activeConnections = 0;
@@ -30,6 +30,7 @@ async function createTunnel() {
         log("INFO", "Démarrage du tunnel localtunnel", { port: 3000, subdomain: "partagesiochaptal" });
         
         const tunnel = await lt({ port: 3000, subdomain: "partagesiochaptal" });
+        tunnel.tunnelCluster.max_conn=MAX_CONNECTIONS
         currentTunnel = tunnel;
         
         log("INFO", "Tunnel créé avec succès", { url: tunnel.url });
