@@ -83,7 +83,7 @@ async function createTunnel() {
             }
         });
         
-        tunnel.on('response', (info) => {
+        tunnel.on('close', (info) => {
             // Marquer la requête comme fermée
             activeConnections = Math.max(0, activeConnections - 1);
             
