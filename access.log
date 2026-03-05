@@ -1390,3 +1390,7 @@
 ::ffff:127.0.0.1 - - [05/Mar/2026:10:45:53 +0000] "GET /favicon.ico HTTP/1.1" 404 1464 "https://partagesiochaptal.loca.lt/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
 ::ffff:127.0.0.1 - - [05/Mar/2026:10:46:01 +0000] "POST /login HTTP/1.1" 302 30 "https://partagesiochaptal.loca.lt/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
 ::ffff:127.0.0.1 - - [05/Mar/2026:10:46:02 +0000] "GET / HTTP/1.1" 200 1899 "https://partagesiochaptal.loca.lt/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+::ffff:127.0.0.1 - - [05/Mar/2026:10:56:05 +0000] "GET / HTTP/1.1" 200 2372 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
+::ffff:127.0.0.1 - - [05/Mar/2026:10:56:15 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
+::ffff:127.0.0.1 - - [05/Mar/2026:10:56:16 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
+::ffff:127.0.0.1 - - [05/Mar/2026:10:56:17 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0"
