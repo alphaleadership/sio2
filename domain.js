@@ -29,14 +29,15 @@ log("INFO", "Démarrage du tunnel localtunnel", { port: 3000, subdomain: "partag
 
 lt({ port: 3000, subdomain: "partagesiochaptal" }).then(tunnel => {
     log("INFO", "Tunnel créé avec succès", { url: tunnel.url });
+    tunnel.tunnelCluster.opts.max_conn=MAX_CONNECTIONS
+     log("INFO", "Cluster du tunnel", { cluster: tunnel.tunnelCluster });
     
     if (tunnel.url !== "https://partagesiochaptal.loca.lt") {
         log("ERROR", "URL du tunnel incorrecte", { expected: "https://partagesiochaptal.loca.lt", actual: tunnel.url });
         process.exit(0);
     }
     
-    log("INFO", "Cluster du tunnel", { cluster: tunnel.tunnelCluster });
-    
+   
     fs.writeFileSync("tunnel.txt", tunnel.url);
     log("INFO", "URL du tunnel sauvegardée dans tunnel.txt");
     
