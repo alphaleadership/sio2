@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@ngrok/ngrok": "^1.7.0",
+    "@ngrok/ngrok-linux-x64-gnu": "^1.7.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^17.3.1",
