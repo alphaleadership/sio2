@@ -763,7 +763,7 @@ router.post('/download-folder', ensureAuthenticated('user'), function (req, res)
     allowedBaseDir = userDir;
   } else if (relPath.startsWith('/global')) {
     // Utilisateur normal peut télécharger du dossier global
-    const subPath = relPath.replace('/global', '').replace(/^\/+/, '');
+    const subPath = relPath.replaceAll('/global', '').replace(/^\/+/, '');
     folderPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
     allowedBaseDir = globalShareDir;
   } else {
