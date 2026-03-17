@@ -168,7 +168,7 @@ router.get('/', ensureAuthenticated('user'), function (req, res, next) {
 });
 
 async function renderFiles(req, res, reqPath, userDir, relBase) {
-  async function getFilesInDir(dirPath, relPath = "") {
+  async function getFilesInDir(dirPath, relPath = "", basePrefix = "") {
   //  console.log(dirPath)
    // console.log(relPath)
     const files = fs.readdirSync(dirPath.replace("global\\global", "global").replace("global/global", "global"), { withFileTypes: true });
@@ -178,6 +178,8 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
     for (const file of files) {
       const fullPath = path.join(dirPath.replace("global\\global", "global").replace("global/global", "global"), file.name);
       const relativePath = path.join(relPath.replace("global\\global", "global").replace("global/global", "global"), file.name);
+      // Construire le chemin complet avec le préfixe de base
+      const fullRelativePath = basePrefix ? basePrefix + '/' + relativePath : relativePath;
 
       // Ignorer les fichiers .meta (métadonnées de compression)
       if (file.name.endsWith('.meta')) {
@@ -190,7 +192,7 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
         processedFiles.push({
           name: relativePath.replace(/\\/g, '/'),
           fullPath: fullPath,
-          relativePath: relativePath,
+          relativePath: fullRelativePath.replace(/\\/g, '/'),
           isDirectory: true,
           isFile: false,
           size: stats.size,
@@ -208,6 +210,7 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
         const originalName = file.name.slice(0, -3); // Enlever l'extension .gz
         const originalPath = path.join(path.dirname(fullPath), originalName);
         const originalRelativePath = path.join(path.dirname(relativePath), originalName);
+        const originalFullRelativePath = basePrefix ? basePrefix + '/' + originalRelativePath : originalRelativePath;
 
         // Éviter les doublons si le fichier original existe aussi
         if (seenFiles.has(originalName)) {
@@ -226,7 +229,7 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
           processedFiles.push({
             name: originalRelativePath.replace(/\\/g, '/'),
             fullPath: originalPath, // Utiliser le chemin original pour les liens
-            relativePath: originalRelativePath,
+            relativePath: originalFullRelativePath.replace(/\\/g, '/'),
             isDirectory: false,
             isFile: true,
             size: metadata ? metadata.originalSize : stats.size, // Taille originale si disponible
@@ -243,7 +246,7 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
           processedFiles.push({
             name: originalRelativePath.replace(/\\/g, '/'),
             fullPath: originalPath,
-            relativePath: originalRelativePath,
+            relativePath: originalFullRelativePath.replace(/\\/g, '/'),
             isDirectory: false,
             isFile: true,
             size: stats.size,
@@ -280,7 +283,7 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
       processedFiles.push({
         name: relativePath.replace(/\\/g, '/'),
         fullPath: fullPath,
-        relativePath: relativePath,
+        relativePath: fullRelativePath.replace(/\\/g, '/'),
         isDirectory: false,
         isFile: true,
         size: stats.size,
@@ -298,9 +301,14 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
 
   try {
     const relPath = path.relative(userDir, reqPath);
-    const files = await getFilesInDir(reqPath, relPath);
+    const files = await getFilesInDir(reqPath, relPath, relBase);
+    
+    // Construire le chemin complet pour le template (incluant relBase)
+    let displayPath = reqPath.replace(userDir, relBase).replace(/\\/g, '/');
+    if (!displayPath.startsWith('/')) displayPath = '/' + displayPath;
+    
     if (!res.headersSent) {
-      res.render('index', { title: 'Explorateur de fichiers', files: files, path: reqPath.replace(userDir, relBase).replace(/\\/g, '/'), user: req.session.user });
+      res.render('index', { title: 'Explorateur de fichiers', files: files, path: displayPath, user: req.session.user });
     }
   } catch (err) {
     console.log(err);
