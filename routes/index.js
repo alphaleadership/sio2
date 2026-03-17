@@ -504,7 +504,6 @@ router.get('/download', ensureAuthenticated('user'), fileStorageMiddleware.creat
     allowedBaseDir = userDir;
   } else if (relFile.startsWith('/global')) {
     // Utilisateur normal peut télécharger du dossier global
-    const globalShareDir = path.join(baseDir, 'global');
     const subPath = relFile.replace('/global', '').replace(/^\/+/, '');
     reqFile = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
     allowedBaseDir = globalShareDir;
@@ -764,7 +763,6 @@ router.post('/download-folder', ensureAuthenticated('user'), function (req, res)
     allowedBaseDir = userDir;
   } else if (relPath.startsWith('/global')) {
     // Utilisateur normal peut télécharger du dossier global
-    const globalShareDir = path.join(baseDir, 'global');
     const subPath = relPath.replace('/global', '').replace(/^\/+/, '');
     folderPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
     allowedBaseDir = globalShareDir;
