@@ -111,7 +111,9 @@ router.post('/upload', upload.array('file'), fileStorageMiddleware.createUploadM
     }
   }
 
-  res.redirect(req.get('referer') || '/');
+  // Redirection vers le chemin d'upload ou la page d'accueil
+  const uploadPath = req.body.path ? `/?path=${encodeURIComponent(req.body.path)}` : '/';
+  res.redirect(uploadPath);
 });
 /* GET home page. */
 
@@ -160,7 +162,7 @@ router.get('/', ensureAuthenticated('user'), function (req, res, next) {
     const subPath = req.query.path.replace(/^\/+/, '').replace("/global", "");
     const reqPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
     if (!reqPath.startsWith(globalShareDir)) return res.status(400).send('Chemin invalide.');
-    return renderFiles(req, res, reqPath, baseDir, '');
+    return renderFiles(req, res, reqPath, globalShareDir, '/global');
   }
 
   // If a regular user tries to access any other path, redirect them to their root.
