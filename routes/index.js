@@ -197,7 +197,8 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
           mtime: stats.mtime,
           ctime: stats.ctime,
           atime: stats.atime,
-          mode: stats.mode
+          mode: stats.mode,
+          uploadDate: stats.mtime
         });
         continue;
       }
@@ -233,7 +234,8 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
             ctime: stats.ctime,
             atime: stats.atime,
             mode: stats.mode,
-            isCompressed: true // Marquer comme compressé pour information
+            isCompressed: true, // Marquer comme compressé pour information
+            uploadDate: stats.mtime
           });
         } catch (error) {
           // En cas d'erreur, afficher avec les stats du fichier compressé
@@ -249,7 +251,8 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
             ctime: stats.ctime,
             atime: stats.atime,
             mode: stats.mode,
-            isCompressed: true
+            isCompressed: true,
+            uploadDate: stats.mtime
           });
         }
         continue;
@@ -285,7 +288,8 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
         ctime: stats.ctime,
         atime: stats.atime,
         mode: stats.mode,
-        isCompressed: false
+        isCompressed: false,
+        uploadDate: stats.mtime
       });
     }
 

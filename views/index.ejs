@@ -67,6 +67,9 @@
         <span class="file-icon">📄</span>
         <span class="file">
                 <a href="/download?file=<%= encodeURIComponent(file.relativePath) %>" download><%= file.name %></a>
+                <% if (file.uploadDate) { %>
+                        <span style="color:#999;font-size:0.9em;margin-left:10px;">(<%= new Date(file.uploadDate).toLocaleString('fr-FR') %>)</span>
+                <% } %>
         </span>
         <form action="/delete" method="post" style="display:inline" onsubmit="return confirm('Supprimer ce fichier ?');">
                 <input type="hidden" name="file" value="<%= file.relativePath %>">
