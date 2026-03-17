@@ -480,12 +480,40 @@ router.post('/delete', function (req, res, next) {
   });
 });
 // Route de téléchargement de fichier avec décompression automatique
-router.get('/download', fileStorageMiddleware.createDownloadMiddleware(), function (req, res, next) {
-  const reqFile = req.query.file ? path.join(baseDir, req.query.file) : null;
-  console.log(reqFile);
+router.get('/download', ensureAuthenticated('user'), fileStorageMiddleware.createDownloadMiddleware(), function (req, res, next) {
+  const user = req.session.user;
+  const relFile = req.query.file;
+  
+  if (!relFile) {
+    return res.status(400).send("Fichier non spécifié.");
+  }
+  
+  let reqFile;
+  let allowedBaseDir;
+  
+  // Déterminer le chemin de base selon le rôle et le chemin demandé
+  if (user.role === 'admin') {
+    // Admin peut télécharger n'importe quel fichier
+    reqFile = path.join(baseDir, relFile);
+    allowedBaseDir = baseDir;
+  } else if (relFile.startsWith('/users/' + user.username)) {
+    // Utilisateur normal peut télécharger ses propres fichiers
+    const userDir = path.join(baseDir, 'users', user.username);
+    const subPath = relFile.replace('/users/' + user.username, '').replace(/^\/+/, '');
+    reqFile = subPath ? path.join(userDir, subPath) : userDir;
+    allowedBaseDir = userDir;
+  } else if (relFile.startsWith('/global')) {
+    // Utilisateur normal peut télécharger du dossier global
+    const globalShareDir = path.join(baseDir, 'global');
+    const subPath = relFile.replace('/global', '').replace(/^\/+/, '');
+    reqFile = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
+    allowedBaseDir = globalShareDir;
+  } else {
+    return res.status(403).send('Accès refusé.');
+  }
 
-  // Vérifie que le chemin est valide et dans le dossier de base
-  if (!reqFile || !reqFile.startsWith(baseDir)) {
+  // Vérifie que le chemin est valide et dans le dossier autorisé
+  if (!reqFile || !reqFile.startsWith(allowedBaseDir)) {
     return res.status(400).send("Chemin invalide.");
   }
 
@@ -715,14 +743,37 @@ router.get('/admin/compression-config/current', adminAuth, (req, res) => {
 });
 
 // Route pour télécharger un dossier entier en ZIP
-router.post('/download-folder', function (req, res) {
+router.post('/download-folder', ensureAuthenticated('user'), function (req, res) {
+  const user = req.session.user;
   const relPath = req.body.path;
   if (!relPath) return res.status(400).send('Chemin non spécifié.');
   
-  const folderPath = path.join(baseDir, relPath);
+  let folderPath;
+  let allowedBaseDir;
+  
+  // Déterminer le chemin de base selon le rôle et le chemin demandé
+  if (user.role === 'admin') {
+    // Admin peut télécharger n'importe quel dossier
+    folderPath = path.join(baseDir, relPath);
+    allowedBaseDir = baseDir;
+  } else if (relPath.startsWith('/users/' + user.username)) {
+    // Utilisateur normal peut télécharger son propre dossier
+    const userDir = path.join(baseDir, 'users', user.username);
+    const subPath = relPath.replace('/users/' + user.username, '').replace(/^\/+/, '');
+    folderPath = subPath ? path.join(userDir, subPath) : userDir;
+    allowedBaseDir = userDir;
+  } else if (relPath.startsWith('/global')) {
+    // Utilisateur normal peut télécharger du dossier global
+    const globalShareDir = path.join(baseDir, 'global');
+    const subPath = relPath.replace('/global', '').replace(/^\/+/, '');
+    folderPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
+    allowedBaseDir = globalShareDir;
+  } else {
+    return res.status(403).send('Accès refusé.');
+  }
   
   // Vérifier que le chemin est valide
-  if (!folderPath.startsWith(baseDir)) {
+  if (!folderPath.startsWith(allowedBaseDir)) {
     return res.status(400).send('Chemin invalide.');
   }
   
