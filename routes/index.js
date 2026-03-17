@@ -704,4 +704,46 @@ router.get('/admin/compression-config/current', adminAuth, (req, res) => {
   }
 });
 
+// Route pour télécharger un dossier entier en ZIP
+router.post('/download-folder', function (req, res) {
+  const relPath = req.body.path;
+  if (!relPath) return res.status(400).send('Chemin non spécifié.');
+  
+  const folderPath = path.join(baseDir, relPath);
+  
+  // Vérifier que le chemin est valide
+  if (!folderPath.startsWith(baseDir)) {
+    return res.status(400).send('Chemin invalide.');
+  }
+  
+  // Vérifier que le dossier existe
+  if (!fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
+    return res.status(404).send('Dossier non trouvé.');
+  }
+  
+  try {
+    const archiver = require('archiver');
+    const folderName = path.basename(folderPath) || 'download';
+    const zipName = `${folderName}-${Date.now()}.zip`;
+    
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${zipName}"`);
+    
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    
+    archive.on('error', (err) => {
+      console.error('Erreur archivage:', err);
+      res.status(500).send('Erreur lors de la création du ZIP.');
+    });
+    
+    archive.pipe(res);
+    archive.directory(folderPath, folderName);
+    archive.finalize();
+    
+  } catch (err) {
+    console.error('Erreur téléchargement dossier:', err);
+    res.status(500).send('Erreur lors du téléchargement.');
+  }
+});
+
 module.exports = router;
