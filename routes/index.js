@@ -341,6 +341,7 @@ loadUsers();
 function ensureAuthenticated(role = null) {
   return function (req, res, next) {
     if (req.session && req.session.user) {
+      console.log(req.session.user)
       const userRole = req.session.user.role;
       if (!role) { // No specific role required, just authenticated
         return next();
