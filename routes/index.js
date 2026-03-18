@@ -519,6 +519,7 @@ router.get('/download', ensureAuthenticated('user'), fileStorageMiddleware.creat
   // Vérifie que le fichier existe et que c'est bien un fichier
   fs.stat(reqFile, (err, stats) => {
     if (err || !stats.isFile()) {
+      console .log("Fichier non trouvé:", reqFile);
       return res.status(404).send("Fichier non trouvé.");
     }
     
