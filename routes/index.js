@@ -482,7 +482,7 @@ router.post('/delete', function (req, res, next) {
 // Route de téléchargement de fichier avec décompression automatique
 router.get('/download', ensureAuthenticated('user'), fileStorageMiddleware.createDownloadMiddleware(), function (req, res, next) {
   const user = req.session.user;
-  const relFile = req.query.file;
+  const relFile = req.query.file.replace("/global/global","/global");
   
   if (!relFile) {
     return res.status(400).send("Fichier non spécifié.");
