@@ -1,8 +1,16 @@
 const lt=require("localtunnel")
 const http=require("https")
-lt({port:3000,subdomain:"partagesiochaptal"}).then(tunnel=>{
+//const log=require("")
+lt({port:3000,subdomain:"partagesio2chaptal"}).then(tunnel=>{
     console.log("tunnel url:",tunnel.url)
+    console.log(tunnel.tunnelCluster)
+    console.log(tunnel)
+    tunnel.tunnelCluster.on("request", req=>console.log("new request",JSON.stringify(req)))
     require("fs").writeFileSync("tunnel.txt",tunnel.url)
+    process.on("SIGINT",(t)=>{
+        console.log(tunnel)
+        tunnel.close()
+     console.log(tunnel)})
     // Autorise tous les certificats (attention : sécurité réduite)
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     http.get("https://loca.lt/185.233.130.41", {
@@ -23,7 +31,7 @@ lt({port:3000,subdomain:"partagesiochaptal"}).then(tunnel=>{
         console.log("statusCode:", res.statusCode)
         console.log("headers:", res.headers)
         res.on("data", d => {
-            process.stdout.write(d)
+           // process.stdout.write(d)
         })
     }).on("error", e => {
         console.error(e)
