@@ -16,14 +16,26 @@ import FileStorageMiddleware from './lib/compression/FileStorageMiddleware.cjs';
 import FileMetadataManager from './lib/compression/FileMetadataManager.cjs';
 import { openapi
  } from '@elysiajs/openapi'
- function html(body, init={}) {
+ /**
+ * Create an HTTP Response ensuring a Content-Type of `text/html` when not already provided.
+ *
+ * @param {BodyInit|null} body - The response body.
+ * @param {ResponseInit} [init={}] - Response initialization options; any provided headers are preserved.
+ * @returns {Response} A Response with the provided body and init options, with `Content-Type: text/html` set if absent.
+ */
+function html(body, init={}) {
   const headers = new Headers(init?.headers)
   if (!headers.has('Content-Type')) headers.set('Content-Type', 'text/html')
   return new Response(body, { ...init, headers })
 }
 const __dirname = new URL('.', import.meta.url).pathname;
 console.log(CompressionStats)
-// --- EJS rendering helper ---
+/**
+ * Render an EJS template from the project's views directory and return it as an HTML Response.
+ * @param {string} templatePath - Path to the template file relative to the views directory, without the `.ejs` extension.
+ * @param {Object} [data={}] - Data passed to the template during rendering.
+ * @returns {Response} The rendered HTML wrapped in a Response with `Content-Type: text/html`.
+ */
 async function renderEjs(templatePath, data = {}) {
   const filePath = path.join(process.cwd(), 'views', `${templatePath}.ejs`);
   return new Promise((resolve, reject) => {
@@ -39,6 +51,12 @@ async function renderEjs(templatePath, data = {}) {
 // --- User loading ---
 const usersPath = path.resolve("..", 'users.json');
 let users = []; 
+/**
+ * Load the users list from the configured users JSON file into the module-level `users` variable.
+ *
+ * If the users file exists and contains valid JSON, replaces `users` with the parsed array;
+ * on any error (missing file, parse error, or read failure) sets `users` to an empty array.
+ */
 function loadUsers() {
   try {
     if (fs.existsSync(usersPath)) {
@@ -53,7 +71,14 @@ loadUsers();
 
 // --- Initialization logic from app.js and routes/index.js ---
 
-// Initialisation de la configuration de compression globale
+/**
+ * Initializes the application's global compression configuration.
+ *
+ * Loads configuration from "temp/compression-config.json" and assigns it to `global.compressionConfig`,
+ * records the load timestamp in `global.compressionConfigLoadedAt`, and writes the configuration file
+ * (creating or updating it) when appropriate. If loading or saving fails, assigns a new default
+ * CompressionConfig to `global.compressionConfig`.
+ */
 async function initializeCompressionConfig() {
   try {
     const configPath = path.join(".", 'temp', 'compression-config.json');
@@ -73,7 +98,12 @@ async function initializeCompressionConfig() {
 }
 
 // Initialiser le système de statistiques
-let compressionStats = new CompressionStats.default(); // Instance par défaut immédiate
+let compressionStats = new CompressionStats.default(); /**
+ * Load persisted compression statistics from temp/compression-stats.json into the module's compressionStats instance.
+ *
+ * If the file is successfully read and parsed, replace the in-memory compressionStats with the loaded instance.
+ * On error, leave the existing compressionStats unchanged.
+ */
 
 async function initializeCompressionStats() {
   try {
@@ -104,7 +134,28 @@ const baseDir = path.resolve(process.cwd(), "public", "partage");
 const globalShareDir = path.join(baseDir, 'global');
 if (!fs.existsSync(globalShareDir)) fs.mkdirSync(globalShareDir, { recursive: true });
 
-async function getFilesInDir(dirPath, relPath = "") {
+/**
+   * Build a list of directory entries for a given filesystem directory, normalizing paths and handling compressed counterparts.
+   *
+   * @param {string} dirPath - Absolute path to the directory to read.
+   * @param {string} [relPath=""] - Path relative to the application's base used for returned `name`/`relativePath` values.
+   * @returns {Array<Object>} An array of file/directory descriptor objects. Each object contains:
+   *  - `name` (string): normalized relative path (forward slashes).
+   *  - `fullPath` (string): filesystem path used for operations (original path for compressed files).
+   *  - `relativePath` (string): original relative path as provided, normalized.
+   *  - `isDirectory` (boolean)
+   *  - `isFile` (boolean)
+   *  - `size` (number): size in bytes (for compressed `.gz` files, attempts to use original size from metadata when available).
+   *  - `mtime`, `ctime`, `atime` (Date): timestamp values from fs stats.
+   *  - `mode` (number): permission/mode from fs stats.
+   *  - `isCompressed` (boolean, optional): `true` when the entry represents a compressed resource.
+   *
+   * Notes:
+   *  - Files ending with `.meta` are ignored.
+   *  - When a `.gz` version exists, the function prefers the compressed representation and reports the original filename.
+   *  - Duplicate entries are avoided when both compressed and uncompressed variants are present.
+   */
+  async function getFilesInDir(dirPath, relPath = "") {
   //  console.log(dirPath)
    // console.log(relPath)
     const files = fs.readdirSync(dirPath.replace("global\\global", "global").replace("global/global", "global"), { withFileTypes: true });
@@ -227,6 +278,20 @@ async function getFilesInDir(dirPath, relPath = "") {
     return processedFiles;
   }
 
+/**
+ * Render the file listing for a requested directory and return the resulting HTML.
+ *
+ * Renders the directory index template for the path specified in `query.path` (or the base directory if absent)
+ * using the files discovered under that path and returns the rendered HTML string. On error, sets `set.status`
+ * to 500 and returns a plain error message string.
+ *
+ * @param {object} set - Response-like object used to set status and headers for the caller.
+ * @param {object} query - Request query object that may contain a `path` property specifying the requested directory.
+ * @param {object|null} user - Authenticated user object (may be null for unauthenticated requests); provided to the template.
+ * @param {string} userDir - Absolute path to the user's root directory; used to compute relative paths.
+ * @param {string} relBase - Base path prefix to substitute for `userDir` when building paths for links.
+ * @returns {string} The rendered HTML for the directory listing, or an error message string if rendering fails.
+ */
 async function renderFiles(set, query, user, userDir, relBase) {
   try {
     const reqPath = query.path ? path.join(baseDir, query.path) : baseDir;
