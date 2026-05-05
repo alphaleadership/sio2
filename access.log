@@ -400,3 +400,6 @@
 ::ffff:100.114.38.170 - - [05/May/2026:11:26:42 +0000] "GET /stylesheets/style.css HTTP/1.1" 304 - "http://100.114.38.222:3000/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0"
 ::ffff:100.114.38.170 - - [05/May/2026:11:26:46 +0000] "POST /login HTTP/1.1" 302 30 "http://100.114.38.222:3000/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0"
 ::ffff:100.114.38.170 - - [05/May/2026:11:26:46 +0000] "GET / HTTP/1.1" 200 2436 "http://100.114.38.222:3000/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0"
+::ffff:100.114.38.168 - - [05/May/2026:11:54:23 +0000] "GET / HTTP/1.1" 304 - "http://100.114.38.222:3000/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0"
+::ffff:100.114.38.168 - - [05/May/2026:11:54:35 +0000] "GET /service/tiniguez HTTP/1.1" 404 1464 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0"
+::ffff:100.114.38.168 - - [05/May/2026:11:55:00 +0000] "GET /service/tiniguez/index.html HTTP/1.1" 404 1464 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:150.0) Gecko/20100101 Firefox/150.0"

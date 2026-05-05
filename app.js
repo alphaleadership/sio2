@@ -77,6 +77,9 @@ app.use(checkFileAccess);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/service",express.static(path.join(__dirname, path.resolve("../partage"),'global','service')));
+
+//app.use("service",express.static(path.join(__dirname, path.resolve("../partage"),'global','service')));
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
