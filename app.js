@@ -76,13 +76,15 @@ const { checkFileAccess } = require('./lib/permissions');
 app.use(checkFileAccess);
 
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use("/service",express.static(path.join(__dirname, path.resolve("../partage"),'global','service')));
 
 //app.use("service",express.static(path.join(__dirname, path.resolve("../partage"),'global','service')));
 
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
+console.log(path.join(path.resolve("../partage"),'global','service'))
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
