@@ -111,7 +111,9 @@ router.post('/upload', upload.array('file'), fileStorageMiddleware.createUploadM
     }
   }
 
-  res.redirect(req.get('referer') || '/');
+  // Redirection vers le chemin d'upload ou la page d'accueil
+  const uploadPath = req.body.path ? `/?path=${encodeURIComponent(req.body.path)}` : '/';
+  res.redirect(uploadPath);
 });
 /* GET home page. */
 
@@ -160,7 +162,7 @@ router.get('/', ensureAuthenticated('user'), function (req, res, next) {
     const subPath = req.query.path.replace(/^\/+/, '').replace("/global", "");
     const reqPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
     if (!reqPath.startsWith(globalShareDir)) return res.status(400).send('Chemin invalide.');
-    return renderFiles(req, res, reqPath, baseDir, '');
+    return renderFiles(req, res, reqPath, globalShareDir, '/global');
   }
 
   // If a regular user tries to access any other path, redirect them to their root.
@@ -168,7 +170,7 @@ router.get('/', ensureAuthenticated('user'), function (req, res, next) {
 });
 
 async function renderFiles(req, res, reqPath, userDir, relBase) {
-  async function getFilesInDir(dirPath, relPath = "") {
+  async function getFilesInDir(dirPath, relPath = "", basePrefix = "") {
   //  console.log(dirPath)
    // console.log(relPath)
     const files = fs.readdirSync(dirPath.replace("global\\global", "global").replace("global/global", "global"), { withFileTypes: true });
@@ -178,6 +180,8 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
     for (const file of files) {
       const fullPath = path.join(dirPath.replace("global\\global", "global").replace("global/global", "global"), file.name);
       const relativePath = path.join(relPath.replace("global\\global", "global").replace("global/global", "global"), file.name);
+      // Construire le chemin complet avec le préfixe de base
+      const fullRelativePath = basePrefix ? basePrefix + '/' + relativePath : relativePath;
 
       // Ignorer les fichiers .meta (métadonnées de compression)
       if (file.name.endsWith('.meta')) {
@@ -190,14 +194,15 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
         processedFiles.push({
           name: relativePath.replace(/\\/g, '/'),
           fullPath: fullPath,
-          relativePath: relativePath,
+          relativePath: fullRelativePath.replace(/\\/g, '/'),
           isDirectory: true,
           isFile: false,
           size: stats.size,
           mtime: stats.mtime,
           ctime: stats.ctime,
           atime: stats.atime,
-          mode: stats.mode
+          mode: stats.mode,
+          uploadDate: stats.mtime
         });
         continue;
       }
@@ -207,6 +212,7 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
         const originalName = file.name.slice(0, -3); // Enlever l'extension .gz
         const originalPath = path.join(path.dirname(fullPath), originalName);
         const originalRelativePath = path.join(path.dirname(relativePath), originalName);
+        const originalFullRelativePath = basePrefix ? basePrefix + '/' + originalRelativePath : originalRelativePath;
 
         // Éviter les doublons si le fichier original existe aussi
         if (seenFiles.has(originalName)) {
@@ -225,7 +231,7 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
           processedFiles.push({
             name: originalRelativePath.replace(/\\/g, '/'),
             fullPath: originalPath, // Utiliser le chemin original pour les liens
-            relativePath: originalRelativePath,
+            relativePath: originalFullRelativePath.replace(/\\/g, '/'),
             isDirectory: false,
             isFile: true,
             size: metadata ? metadata.originalSize : stats.size, // Taille originale si disponible
@@ -233,7 +239,8 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
             ctime: stats.ctime,
             atime: stats.atime,
             mode: stats.mode,
-            isCompressed: true // Marquer comme compressé pour information
+            isCompressed: true, // Marquer comme compressé pour information
+            uploadDate: stats.mtime
           });
         } catch (error) {
           // En cas d'erreur, afficher avec les stats du fichier compressé
@@ -241,7 +248,7 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
           processedFiles.push({
             name: originalRelativePath.replace(/\\/g, '/'),
             fullPath: originalPath,
-            relativePath: originalRelativePath,
+            relativePath: originalFullRelativePath.replace(/\\/g, '/'),
             isDirectory: false,
             isFile: true,
             size: stats.size,
@@ -249,7 +256,8 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
             ctime: stats.ctime,
             atime: stats.atime,
             mode: stats.mode,
-            isCompressed: true
+            isCompressed: true,
+            uploadDate: stats.mtime
           });
         }
         continue;
@@ -277,7 +285,7 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
       processedFiles.push({
         name: relativePath.replace(/\\/g, '/'),
         fullPath: fullPath,
-        relativePath: relativePath,
+        relativePath: fullRelativePath.replace(/\\/g, '/'),
         isDirectory: false,
         isFile: true,
         size: stats.size,
@@ -285,7 +293,8 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
         ctime: stats.ctime,
         atime: stats.atime,
         mode: stats.mode,
-        isCompressed: false
+        isCompressed: false,
+        uploadDate: stats.mtime
       });
     }
 
@@ -294,9 +303,14 @@ async function renderFiles(req, res, reqPath, userDir, relBase) {
 
   try {
     const relPath = path.relative(userDir, reqPath);
-    const files = await getFilesInDir(reqPath, relPath);
+    const files = await getFilesInDir(reqPath, relPath, relBase);
+    
+    // Construire le chemin complet pour le template (incluant relBase)
+    let displayPath = reqPath.replace(userDir, relBase).replace(/\\/g, '/');
+    if (!displayPath.startsWith('/')) displayPath = '/' + displayPath;
+    
     if (!res.headersSent) {
-      res.render('index', { title: 'Explorateur de fichiers', files: files, path: reqPath.replace(userDir, relBase).replace(/\\/g, '/'), user: req.session.user });
+      res.render('index', { title: 'Explorateur de fichiers', files: files, path: displayPath, user: req.session.user });
     }
   } catch (err) {
     console.log(err);
@@ -327,6 +341,7 @@ loadUsers();
 function ensureAuthenticated(role = null) {
   return function (req, res, next) {
     if (req.session && req.session.user) {
+      console.log(req.session.user)
       const userRole = req.session.user.role;
       if (!role) { // No specific role required, just authenticated
         return next();
@@ -466,18 +481,46 @@ router.post('/delete', function (req, res, next) {
   });
 });
 // Route de téléchargement de fichier avec décompression automatique
-router.get('/download', fileStorageMiddleware.createDownloadMiddleware(), function (req, res, next) {
-  const reqFile = req.query.file ? path.join(baseDir, req.query.file) : null;
-  console.log(reqFile);
+router.get('/download', ensureAuthenticated('user'), fileStorageMiddleware.createDownloadMiddleware(), function (req, res, next) {
+  const user = req.session.user;
+  const relFile = req.query.file.replace("/global/global","/global");
+  
+  if (!relFile) {
+    return res.status(400).send("Fichier non spécifié.");
+  }
+  
+  let reqFile;
+  let allowedBaseDir;
+  
+  // Déterminer le chemin de base selon le rôle et le chemin demandé
+  if (user.role === 'admin') {
+    // Admin peut télécharger n'importe quel fichier
+    reqFile = path.join(baseDir, relFile);
+    allowedBaseDir = baseDir;
+  } else if (relFile.startsWith('/users/' + user.username)) {
+    // Utilisateur normal peut télécharger ses propres fichiers
+    const userDir = path.join(baseDir, 'users', user.username);
+    const subPath = relFile.replace('/users/' + user.username, '').replace(/^\/+/, '');
+    reqFile = subPath ? path.join(userDir, subPath) : userDir;
+    allowedBaseDir = userDir;
+  } else if (relFile.startsWith('/global')) {
+    // Utilisateur normal peut télécharger du dossier global
+    const subPath = relFile.replace('/global', '').replace(/^\/+/, '');
+    reqFile = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
+    allowedBaseDir = globalShareDir;
+  } else {
+    return res.status(403).send('Accès refusé.');
+  }
 
-  // Vérifie que le chemin est valide et dans le dossier de base
-  if (!reqFile || !reqFile.startsWith(baseDir)) {
+  // Vérifie que le chemin est valide et dans le dossier autorisé
+  if (!reqFile || !reqFile.startsWith(allowedBaseDir)) {
     return res.status(400).send("Chemin invalide.");
   }
 
   // Vérifie que le fichier existe et que c'est bien un fichier
   fs.stat(reqFile, (err, stats) => {
     if (err || !stats.isFile()) {
+      console .log("Fichier non trouvé:", reqFile);
       return res.status(404).send("Fichier non trouvé.");
     }
     
@@ -697,6 +740,70 @@ router.get('/admin/compression-config/current', adminAuth, (req, res) => {
       success: false,
       error: 'Erreur lors de la récupération: ' + error.message
     });
+  }
+});
+
+// Route pour télécharger un dossier entier en ZIP
+router.post('/download-folder', ensureAuthenticated('user'), function (req, res) {
+  const user = req.session.user;
+  const relPath = req.body.path;
+  if (!relPath) return res.status(400).send('Chemin non spécifié.');
+  
+  let folderPath;
+  let allowedBaseDir;
+  
+  // Déterminer le chemin de base selon le rôle et le chemin demandé
+  if (user.role === 'admin') {
+    // Admin peut télécharger n'importe quel dossier
+    folderPath = path.join(baseDir, relPath);
+    allowedBaseDir = baseDir;
+  } else if (relPath.startsWith('/users/' + user.username)) {
+    // Utilisateur normal peut télécharger son propre dossier
+    const userDir = path.join(baseDir, 'users', user.username);
+    const subPath = relPath.replace('/users/' + user.username, '').replace(/^\/+/, '');
+    folderPath = subPath ? path.join(userDir, subPath) : userDir;
+    allowedBaseDir = userDir;
+  } else if (relPath.startsWith('/global')) {
+    // Utilisateur normal peut télécharger du dossier global
+    const subPath = relPath.replaceAll('/global', '').replace(/^\/+/, '');
+    folderPath = subPath ? path.join(globalShareDir, subPath) : globalShareDir;
+    allowedBaseDir = globalShareDir;
+  } else {
+    return res.status(403).send('Accès refusé.');
+  }
+  
+  // Vérifier que le chemin est valide
+  if (!folderPath.startsWith(allowedBaseDir)) {
+    return res.status(400).send('Chemin invalide.');
+  }
+  
+  // Vérifier que le dossier existe
+  if (!fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
+    return res.status(404).send('Dossier non trouvé.');
+  }
+  
+  try {
+    const archiver = require('archiver');
+    const folderName = path.basename(folderPath) || 'download';
+    const zipName = `${folderName}-${Date.now()}.zip`;
+    
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${zipName}"`);
+    
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    
+    archive.on('error', (err) => {
+      console.error('Erreur archivage:', err);
+      res.status(500).send('Erreur lors de la création du ZIP.');
+    });
+    
+    archive.pipe(res);
+    archive.directory(folderPath, folderName);
+    archive.finalize();
+    
+  } catch (err) {
+    console.error('Erreur téléchargement dossier:', err);
+    res.status(500).send('Erreur lors du téléchargement.');
   }
 });
 

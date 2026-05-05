@@ -1,11 +1,11 @@
 {
-  "totalFilesProcessed": 42,
-  "totalFilesCompressed": 10,
-  "totalSpaceSaved": 16546,
-  "averageCompressionRatio": 0.3010307536329841,
+  "totalFilesProcessed": 1478,
+  "totalFilesCompressed": 701,
+  "totalSpaceSaved": 92702056,
+  "averageCompressionRatio": 0.05580720740050657,
   "compressionsByType": {
     "": {
-      "filesProcessed": 1,
+      "filesProcessed": 7,
       "filesCompressed": 0,
       "totalOriginalSize": 0,
       "totalCompressedSize": 0,
@@ -21,7 +21,7 @@
       "averageCompressionRatio": 1
     },
     ".doc": {
-      "filesProcessed": 1,
+      "filesProcessed": 44,
       "filesCompressed": 0,
       "totalOriginalSize": 0,
       "totalCompressedSize": 0,
@@ -51,7 +51,95 @@
       "totalCompressedSize": 1220,
       "totalSpaceSaved": 2348,
       "averageCompressionRatio": 0.3419282511210762
+    },
+    ".gz": {
+      "filesProcessed": 595,
+      "filesCompressed": 0,
+      "totalOriginalSize": 0,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1
+    },
+    ".log": {
+      "filesProcessed": 741,
+      "filesCompressed": 690,
+      "totalOriginalSize": 96513780,
+      "totalCompressedSize": 5084843,
+      "totalSpaceSaved": 91428937,
+      "averageCompressionRatio": 0.052685150244866585
+    },
+    ".1": {
+      "filesProcessed": 18,
+      "filesCompressed": 0,
+      "totalOriginalSize": 0,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1
+    },
+    ".pkt": {
+      "filesProcessed": 2,
+      "filesCompressed": 0,
+      "totalOriginalSize": 0,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1
+    },
+    ".pdf": {
+      "filesProcessed": 13,
+      "filesCompressed": 0,
+      "totalOriginalSize": 0,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1
+    },
+    ".pka": {
+      "filesProcessed": 7,
+      "filesCompressed": 0,
+      "totalOriginalSize": 0,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1
+    },
+    ".js": {
+      "filesProcessed": 1,
+      "filesCompressed": 1,
+      "totalOriginalSize": 1643827,
+      "totalCompressedSize": 387254,
+      "totalSpaceSaved": 1256573,
+      "averageCompressionRatio": 0.23558075150243912
+    },
+    ".rtf": {
+      "filesProcessed": 1,
+      "filesCompressed": 0,
+      "totalOriginalSize": 0,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1
+    },
+    ".docx": {
+      "filesProcessed": 4,
+      "filesCompressed": 0,
+      "totalOriginalSize": 0,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1
+    },
+    ".ini": {
+      "filesProcessed": 1,
+      "filesCompressed": 0,
+      "totalOriginalSize": 0,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1
+    },
+    ".odt": {
+      "filesProcessed": 4,
+      "filesCompressed": 0,
+      "totalOriginalSize": 0,
+      "totalCompressedSize": 0,
+      "totalSpaceSaved": 0,
+      "averageCompressionRatio": 1
     }
   },
-  "lastUpdated": "2025-09-18T10:05:43.601Z"
+  "lastUpdated": "2026-03-04T08:50:21.952Z"
 }
